@@ -491,6 +491,11 @@ body.noscroll{overflow:hidden}
 .cap-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .cdot{width:22px;height:8px;border-radius:6px;border:0;background:var(--line);padding:0}.cdot.on{background:var(--cobalt)}
 @media (prefers-reduced-motion:reduce){.cap-pic .cp,.cap-en.in,.cap-fr.in{animation:none;opacity:1}}
+.mbox{display:flex;flex-direction:column;gap:4px;margin-top:8px;width:100%;max-width:340px}
+.mbox .mrow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:.8rem}
+.mbox.sm{max-width:260px;gap:2px;margin-top:4px}.mbox.sm .mrow{font-size:.72rem}
+.mbox .mbar{height:7px;border-radius:5px;background:var(--line);overflow:hidden}.mbox .mbar i{display:block;height:100%;background:var(--mint);border-radius:5px;transition:width .4s}
+.mbox .mn{color:var(--muted);font-variant-numeric:tabular-nums}.mbox .mdone{font-weight:800;color:var(--mint);font-size:.85rem}
 </style>
 
 <div class="app">
@@ -17712,7 +17717,7 @@ const TABS=[
 ["oral","Oral",'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'],
 ["jeux","Jeux",'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r="1"/><circle cx="18" cy="13.5" r="1"/>']];
 $("#tabs").innerHTML=TABS.map(t=>`<button class="tab" type="button" data-go="${t[0]}" data-tab="${t[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${t[2]}</svg>${t[1]}</button>`).join("");
-const TABOF={home:"home",programme:"home",ressources:"home",cours:"cours",lecon:"cours",capsules:"cours",capsule:"cours",mots:"mots",theme:"mots",revisions:"mots",verbes:"mots",perso:"mots",exos:"exos",mix:"exos",toeic:"exos",toeicp:"exos",examen:"exos",ecoute:"ecoute",podcast:"ecoute",lecture:"ecoute",texte:"ecoute",chansons:"ecoute",chanson:"ecoute",oral:"oral",son:"oral",ipa:"oral",shadowing:"oral",shadow:"oral",ia:"oral",chat:"oral",voix:"oral",jeux:"jeux",jeu:"jeux",idiomes:"mots",amis:"mots",dico:"mots",conj:"mots"};
+const TABOF={home:"home",programme:"home",ressources:"home",cours:"cours",lecon:"cours",capsules:"cours",capsule:"cours",mots:"mots",theme:"mots",revisions:"mots",verbes:"mots",perso:"mots",exos:"exos",mix:"exos",toeic:"exos",toeicp:"exos",examen:"exos",ecoute:"ecoute",podcast:"ecoute",lecture:"ecoute",texte:"ecoute",chansons:"ecoute",chanson:"ecoute",oral:"oral",son:"oral",ipa:"oral",shadowing:"oral",shadow:"oral",ia:"oral",chat:"oral",voix:"oral",jeux:"jeux",jeu:"jeux",idiomes:"mots",amis:"mots",dico:"mots",conj:"mots",phrases:"mots",phrase:"mots"};
 const V=$("#view");let cleanup=[];
 function onLeave(fn){cleanup.push(fn);}
 const R={};
@@ -17732,10 +17737,10 @@ const back=(to,label)=>el(`<button class="back" type="button" data-go="${to}">�
 /* ================= stats ================= */
 function stats(){
   const lessonsDone=LESSONS.filter(l=>S.lessons[l.id]&&S.lessons[l.id].done).length;
-  const words=Object.values(S.srs).filter(c=>c.b>=3).length;
+  const words=Object.values(S.srs).filter(c=>c.b>=3).length;const mastered=Object.values(S.mast||{}).filter(v=>v[0]>=mGoal()&&v[1]>=mGoal()&&v[2]>=mGoal()).length;
   const verbs=Object.values(S.verbs).filter(v=>v.ok>=2&&v.ok>v.ko).length;
   const pv=Object.values(S.pron);const pron=pv.length?Math.round(pv.reduce((a,b)=>a+b,0)/pv.length):null;
-  return{lessonsDone,words,verbs,pron,pods:Object.keys(S.pods).length};
+  return{lessonsDone,words,mastered,verbs,pron,pods:Object.keys(S.pods).length};
 }
 const LVLORDER=l=>LEVELS.indexOf(l.lvl);
 LESSONS.sort((a,b)=>LVLORDER(a)-LVLORDER(b));
@@ -17765,7 +17770,7 @@ R.home=function(){
   </div>`));
   V.append(el(`<section class="stack"><h2>Ta progression</h2><div class="grid">
     <div class="card"><div class="stat"><b>${st.lessonsDone}<small class="muted" style="font-size:1rem"> / ${LESSONS.length}</small></b><span>leçons terminées</span></div></div>
-    <div class="card"><div class="stat"><b>${st.words}<small class="muted" style="font-size:1rem"> / ${ALLWORDS.length.toLocaleString("fr-FR")}</small></b><span>mots bien retenus</span></div></div>
+    <div class="card"><div class="stat"><b>${st.words}<small class="muted" style="font-size:1rem"> / ${ALLWORDS.length.toLocaleString("fr-FR")}</small></b><span>mots bien retenus · 🏆 ${st.mastered} maîtrisés</span></div></div>
     <div class="card"><div class="stat"><b>${st.verbs}<small class="muted" style="font-size:1rem"> / ${VERBS.length}</small></b><span>verbes irréguliers maîtrisés</span></div></div>
     <div class="card"><div class="stat"><b>${S.mix.n}</b><span>exercices mélangés faits (${S.mix.n?Math.round(S.mix.ok/S.mix.n*100):0} % justes)</span></div></div>
     <div class="card"><div class="stat"><b>${st.pron==null?"–":st.pron+" %"}</b><span>prononciation moyenne</span></div></div>
@@ -17824,7 +17829,7 @@ R.cours=function(){
 function renderItem(it,n,onAnswer){
   const box=el(`<div class="q"><span class="qn">${esc(n)}</span></div>`);
   let answered=false;
-  const fb=(ok,txt)=>{const f=el(`<div class="fb ${ok?"ok":"ko"}"></div>`);f.innerHTML=(ok?"<b>Bravo !</b> ":"<b>Pas tout à fait.</b> ")+txt;box.append(f);if(!answered){answered=true;onAnswer&&onAnswer(ok);}};
+  const fb=(ok,txt)=>{const f=el(`<div class="fb ${ok?"ok":"ko"}"></div>`);f.innerHTML=(ok?"<b>Bravo !</b> ":"<b>Pas tout à fait.</b> ")+txt;box.append(f);if(!answered){answered=true;if(it.men&&it.mk){mastery(it.men,it.mk,ok);box.append(el(mBox(it.men,true)));}onAnswer&&onAnswer(ok);}};
   if(it.audio)box.append(el(`<div class="row">${pb(it.audio)}<span class="small muted">Écoute d'abord</span></div>`));
   if(it.pic)box.append(el(`<div class="pic">${it.pic}</div>`));
   if(it.t==="mc"){
@@ -17909,7 +17914,7 @@ R.lecon=function(id){
 let wordCat="q",wordSearch="";
 function themeStats(t){const n=t.words.length;const learned=t.words.filter(w=>S.srs[w.id]&&S.srs[w.id].b>=3).length;const seen=t.words.filter(w=>S.srs[w.id]).length;return{n,learned,seen};}
 function customTheme(){return{name:"Mes mots",cat:"m",lvl:"—",emoji:"⭐",idx:"perso",words:S.custom.map(w=>({en:w.en,fr:w.fr,th:"Mes mots",id:"Mes mots|"+w.en}))};}
-const wordsNav=cur=>subtabs([["mots","Thèmes"],["revisions","Révisions du jour"],["verbes","Verbes irréguliers"],["perso","Mes mots"],["dico","📖 Dictionnaire"],["conj","📋 Conjugaison"],["idiomes","Idiomes"],["amis","Faux amis"]],cur,k=>location.hash=k);
+const wordsNav=cur=>subtabs([["mots","Thèmes"],["revisions","Révisions du jour"],["verbes","Verbes irréguliers"],["perso","Mes mots"],["phrases","💬 Phrases"],["dico","📖 Dictionnaire"],["conj","📋 Conjugaison"],["idiomes","Idiomes"],["amis","Faux amis"]],cur,k=>location.hash=k);
 R.mots=function(arg){if(arg&&["q","p","t","l","all"].includes(arg)){wordCat=arg;try{history.replaceState(null,"","#mots");}catch(e){}}
   V.append(head("Mots",`Vocabulaire <em>${ALLWORDS.length.toLocaleString("fr-FR")}</em> mots`,`${THEMES.length} thèmes du quotidien et du monde professionnel, avec flashcards illustrées, audio et répétition espacée. Commence par les thèmes A1-A2, puis monte en niveau.`));
   V.append(wordsNav("mots"));
@@ -17930,10 +17935,11 @@ R.theme=function(arg){
   const t=arg==="perso"?customTheme():THEMES[+arg];if(!t){location.hash="mots";return;}
   V.append(back(arg==="perso"?"perso":"mots",arg==="perso"?"Mes mots":"Tous les thèmes"));
   const s=themeStats(t);
-  V.append(el(`<section class="stack"><div class="row"><span class="emo big">${t.emoji}</span><span class="tag ${t.lvl}">${t.lvl}</span></div><h1 class="view-title">${esc(t.name)}</h1><p class="lead">${s.n} mots · ${s.learned} bien retenus · ${s.seen} déjà vus</p></section>`));
+  V.append(el(`<section class="stack"><div class="row"><span class="emo big">${t.emoji}</span><span class="tag ${t.lvl}">${t.lvl}</span></div><h1 class="view-title">${esc(t.name)}</h1><p class="lead">${s.n} mots · ${s.learned} bien retenus · ${s.seen} déjà vus · 🏆 ${t.words.filter(w=>mDone(w.en)).length} maîtrisés</p></section>`));
+  V.append(el(`<p class="small muted">🏆 Un mot est <b>maîtrisé</b> quand tu l'as trouvé ${mGoal()} fois en QCM, ${mGoal()} fois à l'écrit et ${mGoal()} fois à l'écoute (une erreur retire 2 points). <a href="#voix">Changer l'objectif</a></p>`));
   V.append(subtabs([["cartes","Flashcards"],["qcm","QCM"],["ecrire","Écrire"],["ecoute","Écoute"],["liste","Liste"]],wordMode,k=>{wordMode=k;route();}));
   const area=el(`<div class="stack"></div>`);V.append(area);
-  if(wordMode==="liste"){const c=el(`<div class="card"></div>`);t.words.forEach(w=>{const b=(S.srs[w.id]||{}).b;c.append(el(`<div class="exline"><div><b class="wlink" data-word="${esc(w.en)}">${pictureFor(w.en,t.name)} ${wordMarkup(w.en).html}</b>${pronBox(w.en,true)}<small>${esc(w.fr)}${b>=3?" · ✓ retenu":""}</small></div>${pb(w.en)}</div>`));});area.append(c);return;}
+  if(wordMode==="liste"){const c=el(`<div class="card"></div>`);t.words.forEach(w=>{const b=(S.srs[w.id]||{}).b;c.append(el(`<div class="exline"><div><b class="wlink" data-word="${esc(w.en)}">${pictureFor(w.en,t.name)} ${wordMarkup(w.en).html}</b>${pronBox(w.en,true)}<small>${esc(w.fr)}${b>=3?" · ✓ retenu":""}</small>${mBox(w.en,true)}</div>${pb(w.en)}</div>`));});area.append(c);return;}
   runSession(area,buildQueue(t.words),t.name);
 };
 function buildQueue(words,max){const dn=dayNum();max=max||20;
@@ -17942,6 +17948,15 @@ function buildQueue(words,max){const dn=dayNum();max=max||20;
   return shuffle(due.slice(0,max)).concat(fresh).slice(0,max);}
 const INT=[0,1,2,4,8,16,32,64];
 function grade(w,ok){const dn=dayNum();const c=S.srs[w.id]||{b:0,d:dn};if(ok){c.b=Math.min(7,c.b+1);c.d=dn+INT[c.b];}else{c.b=0;c.d=dn;}S.srs[w.id]=c;log("cards");}
+/* ---------- mastery: correct answers in QCM, writing and listening ---------- */
+const MK={q:["📝","QCM"],w:["✍️","Écrit"],l:["🎧","Écoute"]};
+const mKey=en=>"w:"+String(en).toLowerCase().replace(/[’]/g,"'").trim();
+function mGoal(){return (S.settings&&S.settings.mastery)||30;}
+function mGet(en){return (S.mast&&S.mast[mKey(en)])||[0,0,0];}
+function mastery(en,mode,ok){if(!en||!MK[mode])return;S.mast=S.mast||{};const k=mKey(en);const v=S.mast[k]||[0,0,0];const i="qwl".indexOf(mode);v[i]=ok?Math.min(999,v[i]+1):Math.max(0,v[i]-2);S.mast[k]=v;save();}
+function mDone(en){const v=mGet(en),g=mGoal();return v[0]>=g&&v[1]>=g&&v[2]>=g;}
+function mBox(en,compact){const v=mGet(en),g=mGoal();const done=mDone(en);
+  return `<div class="mbox${compact?" sm":""}${done?" done":""}" title="Maîtrise : ${g} bonnes réponses dans chaque mode">${done?`<span class="mdone">🏆 Maîtrisé</span>`:""}${"qwl".split("").map((m,i)=>`<span class="mrow"><span class="ml">${MK[m][0]}${compact?"":" "+MK[m][1]}</span><span class="mbar"><i style="width:${Math.min(100,Math.round(v[i]/g*100))}%"></i></span><span class="mn">${Math.min(v[i],g)}/${g}</span></span>`).join("")}</div>`;}
 let exCache={};try{exCache=JSON.parse(localStorage.getItem("ptb2-ex")||"{}");}catch(e){}
 function saveEx(){try{const k=Object.keys(exCache);if(k.length>1500)k.slice(0,300).forEach(x=>delete exCache[x]);localStorage.setItem("ptb2-ex",JSON.stringify(exCache));}catch(e){}}
 async function aiExamples(words){const need=words.filter(w=>!exCache[w.en]&&w.en.split(" ").length<=4);if(!need.length)return;const sample=await getSample();if(!sample)return;
@@ -17958,7 +17973,7 @@ function runSession(area,queue,label){
     stage.innerHTML="";if(k>=queue.length){stage.append(el(`<div class="card tint-mint"><h3>Session terminée ✦</h3><p>${right} / ${queue.length} bonnes réponses. Les mots ratés reviendront bientôt.</p></div>`));const again=el(`<button class="btn" type="button" style="align-self:flex-start">Nouvelle session</button>`);again.addEventListener("click",route);stage.append(again);return;}
     const w=queue[k];const img=pictureFor(w.en,w.th);const prog=`<span class="small muted">${k+1} / ${queue.length}</span>`;
     if(wordMode==="cartes"){
-      const f=el(`<div class="flash"><span>${prog}</span>${img?`<div class="emo xl">${img}</div>`:`<span class="tag nopic">${THEME_EMOJI[w.th]||"✦"} ${esc(w.th)}</span>`}<div class="big wordm">${wordMarkup(w.en).html}</div>${muteTag(wordMarkup(w.en).letters)}${pronBox(w.en)}${pb(w.en)}<div class="ans" hidden><p class="small muted" style="margin:0">ça veut dire</p><p style="font-weight:800;font-size:1.3rem;margin:0">${esc(w.fr)}</p><div class="exs"></div><div class="sbx"></div></div></div>`);
+      const f=el(`<div class="flash"><span>${prog}</span>${img?`<div class="emo xl">${img}</div>`:`<span class="tag nopic">${THEME_EMOJI[w.th]||"✦"} ${esc(w.th)}</span>`}<div class="big wordm">${wordMarkup(w.en).html}</div>${muteTag(wordMarkup(w.en).letters)}${pronBox(w.en)}${pb(w.en)}<div class="ans" hidden><p class="small muted" style="margin:0">ça veut dire</p><p style="font-weight:800;font-size:1.3rem;margin:0">${esc(w.fr)}</p><div class="exs"></div>${mBox(w.en)}<div class="sbx"></div></div></div>`);
       const act=el(`<div class="row" style="justify-content:center"><button class="btn butter" type="button">Voir la réponse</button></div>`);
       act.firstElementChild.addEventListener("click",()=>{f.querySelector(".ans").hidden=false;const sbx=f.querySelector(".sbx");if(sbx&&!sbx.childElementCount){const fb=el(`<button class="btn line sm" type="button">📖 Fiche complète : synonymes, contraires${isVerbEntry(w)?", conjugaison":""}</button>`);fb.addEventListener("click",()=>openWord(w));sbx.append(fb,sensesBox(w));}const ex=exCache[w.en];const exs=f.querySelector(".exs");
         if(ex){exs.innerHTML=`<p class="ex">${esc(ex.en)}</p><p class="small muted">${esc(ex.fr)}</p>`;speak(ex.en);}
@@ -17968,7 +17983,7 @@ function runSession(area,queue,label){
       stage.append(f,act);speak(w.en);
     }else if(wordMode==="qcm"){
       const pool=ALLWORDS.filter(x=>x.th===w.th&&x.fr!==w.fr);const opts=shuffle([w.fr].concat(shuffle(pool).slice(0,3).map(x=>x.fr)));
-      const it={t:"mc",q:w.en,o:opts,a:opts.indexOf(w.fr),keep:true,pic:img,e:"",sayAfter:w.en};
+      const it={t:"mc",q:w.en,o:opts,a:opts.indexOf(w.fr),keep:true,pic:img,e:"",sayAfter:w.en,men:w.en,mk:"q"};
       stage.append(renderItem(it,(k+1)+" / "+queue.length,ok=>{grade(w,ok);if(ok)right++;const nb=el(`<button class="btn" type="button" style="align-self:flex-start">Suivant →</button>`);nb.addEventListener("click",next);stage.append(nb);}));
       speak(w.en);
     }else{
@@ -17976,8 +17991,8 @@ function runSession(area,queue,label){
       const f=el(`<div class="flash"><span>${prog}</span>${isL?`<div class="emo xl">🎧</div><p class="muted">Écris ce que tu entends.</p>${pb(w.en)}`:`${img?`<div class="emo xl">${img}</div>`:`<span class="tag nopic">${THEME_EMOJI[w.th]||"✦"} ${esc(w.th)}</span>`}<div class="big">${esc(w.fr)}</div><p class="muted">Écris-le en anglais.</p>`}<input class="inp" style="max-width:360px;text-align:center" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="ans"></div></div>`);
       const inp=f.querySelector("input");const ansEl=f.querySelector(".ans");let doneW=false;
       const act=el(`<div class="row" style="justify-content:center"><button class="btn" type="button">Vérifier</button></div>`);
-      const check=()=>{if(doneW){next();return;}doneW=true;const ok=same(inp.value,w.en)||stripArt(norm(inp.value))===stripArt(norm(w.en));grade(w,ok);if(ok)right++;
-        ansEl.innerHTML=`<p class="fb ${ok?"ok":"ko"}">${ok?"Bravo !":"Réponse : <b>"+esc(w.en)+"</b>"}</p><p class="small muted">${esc(w.fr)}</p>`;speak(w.en);act.firstElementChild.textContent="Suivant →";};
+      const check=()=>{if(doneW){next();return;}doneW=true;const ok=same(inp.value,w.en)||stripArt(norm(inp.value))===stripArt(norm(w.en));grade(w,ok);mastery(w.en,isL?"l":"w",ok);if(ok)right++;
+        ansEl.innerHTML=`<p class="fb ${ok?"ok":"ko"}">${ok?"Bravo !":"Réponse : <b>"+esc(w.en)+"</b>"}</p><p class="small muted">${esc(w.fr)}</p>${mBox(w.en,true)}`;speak(w.en);act.firstElementChild.textContent="Suivant →";};
       act.firstElementChild.addEventListener("click",check);inp.addEventListener("keydown",e=>{if(e.key==="Enter")check();});
       stage.append(f,act);if(isL)speak(w.en);
     }
@@ -18469,10 +18484,10 @@ const PASTCTX=["Yesterday, I ___ (V) …","Last week, she ___ (V) …","Two days
 const lvlOk=(lv,f)=>f==="Tous"||(f==="A"&&(lv==="A1"||lv==="A2"))||(f==="B1"&&lv==="B1")||(f==="BC"&&(lv==="B2"||lv==="C1"));
 const _wf={};function wordsFor(f){return _wf[f]||(_wf[f]=ALLWORDS.filter(w=>lvlOk(THLVL[w.th],f)));}
 const GENS=[
-{id:"enfr",cat:"vocab",name:"Traduire (anglais → français)",lv:"all",count:f=>wordsFor(f).length,make:f=>{const ws=wordsFor(f);const w=pick(ws);const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.fr!==w.fr)).slice(0,3).map(x=>x.fr);const o=shuffle([w.fr].concat(d));return{t:"mc",q:"Que veut dire « "+w.en+" » ?",o,a:o.indexOf(w.fr),keep:true,pic:pictureFor(w.en,w.th),sayAfter:w.en,e:""};}},
-{id:"fren",cat:"vocab",name:"Traduire (français → anglais)",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f));const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.en!==w.en)).slice(0,3).map(x=>x.en);const o=shuffle([w.en].concat(d));return{t:"mc",q:"Comment dit-on « "+w.fr+" » ?",o,a:o.indexOf(w.en),keep:true,sayAfter:w.en,e:""};}},
-{id:"spell",cat:"vocab",name:"Écrire le mot",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f).filter(x=>x.en.split(" ").length<=4));return{t:"type",q:"Écris en anglais : « "+w.fr+" »",a:[w.en],e:""};}},
-{id:"listen",cat:"ecoute",name:"Écoute et reconnais",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f));const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.en!==w.en)).slice(0,3).map(x=>x.en);const o=shuffle([w.en].concat(d));return{t:"mc",q:"Qu'as-tu entendu ?",o,a:o.indexOf(w.en),keep:true,audio:w.en,e:"« "+w.en+" » = "+w.fr};}},
+{id:"enfr",cat:"vocab",name:"Traduire (anglais → français)",lv:"all",count:f=>wordsFor(f).length,make:f=>{const ws=wordsFor(f);const w=pick(ws);const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.fr!==w.fr)).slice(0,3).map(x=>x.fr);const o=shuffle([w.fr].concat(d));return{men:w.en,mk:"q",t:"mc",q:"Que veut dire « "+w.en+" » ?",o,a:o.indexOf(w.fr),keep:true,pic:pictureFor(w.en,w.th),sayAfter:w.en,e:""};}},
+{id:"fren",cat:"vocab",name:"Traduire (français → anglais)",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f));const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.en!==w.en)).slice(0,3).map(x=>x.en);const o=shuffle([w.en].concat(d));return{men:w.en,mk:"q",t:"mc",q:"Comment dit-on « "+w.fr+" » ?",o,a:o.indexOf(w.en),keep:true,sayAfter:w.en,e:""};}},
+{id:"spell",cat:"vocab",name:"Écrire le mot",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f).filter(x=>x.en.split(" ").length<=4));return{men:w.en,mk:"w",t:"type",q:"Écris en anglais : « "+w.fr+" »",a:[w.en],e:""};}},
+{id:"listen",cat:"ecoute",name:"Écoute et reconnais",lv:"all",count:f=>wordsFor(f).length,make:f=>{const w=pick(wordsFor(f));const d=shuffle(ALLWORDS.filter(x=>x.th===w.th&&x.en!==w.en)).slice(0,3).map(x=>x.en);const o=shuffle([w.en].concat(d));return{men:w.en,mk:"l",t:"mc",q:"Qu'as-tu entendu ?",o,a:o.indexOf(w.en),keep:true,audio:w.en,e:"« "+w.en+" » = "+w.fr};}},
 {id:"dict",cat:"ecoute",name:"Dictée",lv:"all",count:()=>LESSONS.reduce((n,l)=>n+l.ex.length,0),make:f=>{const ls=LESSONS.filter(l=>lvlOk(l.lvl,f));const ex=pick(pick(ls.length?ls:LESSONS).ex);return{t:"type",q:"Écoute et écris la phrase.",audio:ex[0],a:[ex[0]],e:ex[1]};}},
 {id:"past",cat:"verbes",name:"Prétérit des verbes irréguliers",lv:"A",count:()=>VERBS.length*PASTCTX.length,make:()=>{const v=pick(VERBS.slice(0,70));const ctx=pick(PASTCTX).replace("V",v[0]);const past=v[1].split(" / ")[0];const o=shuffle([...new Set([past,v[0],v[0]+"ed",v[2].split(" / ")[0]===past?v[0]+"s":v[2].split(" / ")[0]])]);return{t:"mc",q:ctx,o,a:o.indexOf(past),keep:true,e:v[0]+" → "+v[1]+" → "+v[2],sayAfter:v[0]+", "+past};}},
 {id:"pp",cat:"verbes",name:"Participes passés",lv:"B1",count:()=>VERBS.length*3,make:()=>{const v=pick(VERBS);const ctx=pick(["I have never ___ (V) that.","She has already ___ (V) it.","Have you ever ___ (V) …?"]).replace("V",v[0]);return{t:"gap",q:ctx,a:v[2].split(" / "),e:v[0]+" → "+v[1]+" → "+v[2]};}},
@@ -18494,7 +18509,7 @@ R.exos=function(){
   V.append(head("Exercices",`Entraînement <em>mixte</em>`,`Des exercices variés et mélangés, de tous niveaux : plus de ${(Math.floor(total/1000)*1000).toLocaleString("fr-FR")} combinaisons possibles, tirées des leçons, des ${ALLWORDS.length.toLocaleString("fr-FR")} mots, des verbes, de l'écoute et du TOEIC.`));
   V.append(subtabs([["exos","Entraînement mixte"],["toeic","TOEIC"]],"exos",k=>location.hash=k));
   const lv=el(`<div class="stack"><span class="small muted">Niveau</span></div>`);lv.append(subtabs([["Tous","Tous"],["A","A1-A2"],["B1","B1"],["BC","B2-C1"]],mixLvl,k=>{mixLvl=k;route();}));V.append(lv);
-  const ct=el(`<div class="stack"><span class="small muted">Type d'exercices</span></div>`);ct.append(subtabs([["all","Tout mélangé"],["vocab","Vocabulaire"],["grammaire","Grammaire"],["verbes","Verbes"],["ecoute","Écoute"],["toeic","TOEIC"]],mixCat,k=>{mixCat=k;route();}));V.append(ct);
+  const ct=el(`<div class="stack"><span class="small muted">Type d'exercices</span></div>`);ct.append(subtabs([["all","Tout mélangé"],["vocab","Vocabulaire"],["grammaire","Grammaire"],["verbes","Verbes"],["phrases","Phrases"],["ecoute","Écoute"],["toeic","TOEIC"]],mixCat,k=>{mixCat=k;route();}));V.append(ct);
   const gs=gensFor(mixLvl,mixCat);const n=gs.reduce((a,g)=>a+g.count(mixLvl),0);
   V.append(el(`<p class="small muted">${n.toLocaleString("fr-FR")} exercices possibles avec ces réglages · ${gs.length} types : ${gs.map(g=>g.name).join(", ")}.</p>`));
   const startBtn=el(`<button class="btn" type="button" style="align-self:flex-start">▶ Lancer 20 exercices</button>`);V.append(startBtn);
@@ -18998,6 +19013,67 @@ R.toeicp=function(part){const fresh=!!(toeicPending&&toeicPending.part===part);_
   const gb=toeicGenBox(part);const h=V.querySelector("h1.view-title");const sec=h&&h.closest("section");if(sec)sec.after(gb);else V.prepend(gb);
   if(fresh)gb.after(el(`<p class="tag done" style="align-self:flex-start">✨ Nouvelle série générée par l'IA</p>`));
   const rnd=el(`<button class="btn line sm" type="button" style="align-self:flex-start">🎲 Nouvelle série aléatoire (banque)</button>`);rnd.addEventListener("click",()=>route());gb.after(rnd);};
+
+/* ================= SENTENCES: flashcards, QCM, order, dictation + mastery goal ================= */
+let _SENTS=null;
+function SENTS(){if(_SENTS)return _SENTS;const seen=new Set(),out=[];
+  const add=(en,fr,src,lvl,lid)=>{en=plain(en||"").replace(/\s+/g," ").trim();fr=plain(fr||"").trim();
+    if(!en||!fr||en.length<8||en.length>140)return;const wc=en.split(" ").length;if(wc<3||wc>20)return;if(/[=→…]|___|\/|\?\?/.test(en))return;if(!/[a-z]/.test(en)||!/^[A-Z"'“]/.test(en))return;
+    const k=en.toLowerCase();if(seen.has(k))return;seen.add(k);out.push({en,fr:fr.replace(/^\((.*)\)$/,"$1"),src,lvl,lid});};
+  LESSONS.forEach(l=>{(l.ex||[]).forEach(x=>add(x[0],x[1],l.title,l.lvl,l.id));
+    ((typeof DEEP!=="undefined"&&DEEP[l.id])||[]).forEach(b=>{[b.ex,b.k==="ex"?b.list:null,b.a&&b.a.ex,b.b&&b.b.ex].forEach(a=>(a||[]).forEach(x=>add(x[0],x[1],l.title,l.lvl,l.id)));});});
+  THEMES.forEach(t=>t.words.forEach(w=>{if(/\s/.test(w.en)&&/[.?!]$/.test(w.en.trim()))add(w.en,w.fr,t.name,t.lvl,null);}));
+  return _SENTS=out;}
+const sKey=s=>s.en;
+let phSrc="all",phLvl="Tous",phMode="cartes";
+function sentPool(lid){let p=SENTS();if(lid)return p.filter(s=>s.lid===lid);
+  if(phSrc==="lecons")p=p.filter(s=>s.lid);if(phSrc==="utiles")p=p.filter(s=>!s.lid);
+  if(phLvl!=="Tous")p=p.filter(s=>s.lvl===phLvl);return p;}
+function sentItem(s,mode,pool){
+  const others=shuffle(pool.filter(x=>x.en!==s.en)).slice(0,3);
+  if(mode==="qcm"){const o=shuffle([s.fr].concat(others.map(x=>x.fr)));return{t:"mc",q:"Que veut dire : « "+s.en+" » ?",o,a:o.indexOf(s.fr),keep:true,e:"",sayAfter:s.en,men:sKey(s),mk:"q"};}
+  if(mode==="qcmen"){const o=shuffle([s.en].concat(others.map(x=>x.en)));return{t:"mc",q:"Comment dit-on : « "+s.fr+" » ?",o,a:o.indexOf(s.en),keep:true,e:"",sayAfter:s.en,men:sKey(s),mk:"q"};}
+  if(mode==="ecoute"){const o=shuffle([s.fr].concat(others.map(x=>x.fr)));return{t:"mc",q:"Écoute : que veut dire cette phrase ?",audio:s.en,o,a:o.indexOf(s.fr),keep:true,e:"« "+s.en+" »",men:sKey(s),mk:"l"};}
+  if(mode==="dictee")return{t:"type",q:"Écoute et écris la phrase.",audio:s.en,a:[s.en],e:s.fr,men:sKey(s),mk:"l"};
+  return{t:"order",fr:s.fr,a:s.en.replace(/\s+/g," "),men:sKey(s),mk:"w"};}
+R.phrases=function(lid){
+  const L=lid?LESSONS.find(l=>l.id===lid):null;
+  V.append(head("Mots",L?`Phrases : <em>${esc(L.title)}</em>`:`Les <em>phrases</em>`,"Apprends des phrases entières : c'est comme ça qu'on retient le mieux. Flashcards, QCM, remettre dans l'ordre, écoute et dictée."));
+  if(L)V.append(back("lecon-"+lid,"Retour à la leçon"));else V.append(wordsNav("phrases"));
+  if(!L){const f=el(`<div class="stack"></div>`);f.append(subtabs([["all","Toutes"],["lecons","Phrases des leçons"],["utiles","Phrases utiles"]],phSrc,k=>{phSrc=k;route();}));f.append(subtabs([["Tous","Tous niveaux"]].concat(LEVELS.map(l=>[l,l])),phLvl,k=>{phLvl=k;route();}));V.append(f);}
+  V.append(subtabs([["cartes","🃏 Flashcards"],["qcm","📝 QCM"],["ordre","🧩 Remettre dans l'ordre"],["ecoute","🎧 Écoute"],["dictee","✍️ Dictée"]],phMode,k=>{phMode=k;route();}));
+  const pool=sentPool(lid);const done=pool.filter(s=>mDone(sKey(s))).length;
+  V.append(el(`<p class="small muted">${pool.length} phrases · 🏆 ${done} maîtrisées (${mGoal()} bonnes réponses en QCM, en ordre/écrit et à l'écoute).</p>`));
+  if(pool.length<2){V.append(el(`<p class="notice">Pas assez de phrases ici.</p>`));return;}
+  const area=el(`<div class="stack"></div>`);V.append(area);
+  const q=shuffle(pool.slice().sort((a,b)=>{const x=mGet(sKey(a)),y=mGet(sKey(b));return (x[0]+x[1]+x[2])-(y[0]+y[1]+y[2]);}).slice(0,Math.max(20,Math.min(60,pool.length)))).slice(0,15);
+  let k=0,good=0;
+  const next=()=>{area.innerHTML="";if(k>=q.length){area.append(el(`<div class="card tint-mint"><h3>Série terminée ✦</h3><p>${phMode==="cartes"?k+" phrases revues.":good+" / "+q.length+" bonnes réponses."}</p></div>`));const b=el(`<button class="btn" type="button" style="align-self:flex-start">Nouvelle série</button>`);b.addEventListener("click",route);area.append(b);return;}
+    const s=q[k];const n=(k+1)+" / "+q.length+" · "+s.src;
+    if(phMode==="cartes"){const c=el(`<div class="flash"><span class="small muted">${esc(n)}</span><div class="big" style="font-size:1.35rem">${esc(s.fr)}</div><p class="muted small">Dis la phrase en anglais, puis vérifie.</p><div class="ans" hidden><p style="font-weight:800;font-size:1.3rem;margin:0">${esc(s.en)}</p>${pb(s.en)}${mBox(sKey(s))}</div></div>`);
+      const act=el(`<div class="row" style="justify-content:center"><button class="btn butter" type="button">Voir la réponse</button></div>`);
+      act.firstElementChild.addEventListener("click",()=>{c.querySelector(".ans").hidden=false;speak(s.en);act.innerHTML="";const nb=el(`<button class="btn" type="button">Suivant →</button>`);nb.addEventListener("click",()=>{k++;next();});act.append(nb);});
+      area.append(c,act);return;}
+    const mode=phMode==="qcm"?(Math.random()<.5?"qcm":"qcmen"):phMode==="ordre"?"ordre":phMode;
+    const it=sentItem(s,mode,pool);const box=renderItem(it,n,ok=>{log("ex");if(ok)good++;const nb=el(`<button class="btn sm" type="button" style="align-self:flex-start">Suivant →</button>`);nb.addEventListener("click",()=>{k++;next();});box.append(nb);});
+    area.append(box);if(it.audio)speak(it.audio);};
+  next();
+};
+// sentence generators in the mixed exercises
+(function(){const lv=f=>SENTS().filter(s=>f==="Tous"||lvlOk(s.lvl,f));const P=f=>{const p=lv(f);return p.length>4?p:SENTS();};
+  GENS.push(
+  {id:"phqcm",cat:"phrases",name:"Phrases : que veut dire… ?",lv:"all",count:f=>lv(f).length,make:f=>{const p=P(f);return sentItem(pick(p),"qcm",p);}},
+  {id:"phqcmen",cat:"phrases",name:"Phrases : comment dit-on… ?",lv:"all",count:f=>lv(f).length,make:f=>{const p=P(f);return sentItem(pick(p),"qcmen",p);}},
+  {id:"phorder",cat:"phrases",name:"Phrases : remettre dans l'ordre",lv:"all",count:f=>lv(f).length,make:f=>{const p=P(f).filter(s=>s.en.split(" ").length<=12);return sentItem(pick(p),"ordre",p);}},
+  {id:"phlisten",cat:"phrases",name:"Phrases : écoute et comprends",lv:"all",count:f=>lv(f).length,make:f=>{const p=P(f);return sentItem(pick(p),"ecoute",p);}},
+  {id:"phdict",cat:"phrases",name:"Phrases : dictée",lv:"all",count:f=>lv(f).length,make:f=>{const p=P(f).filter(s=>s.en.split(" ").length<=10);return sentItem(pick(p),"dictee",p);}});})();
+// lesson page: link to its sentences
+const _lecon=R.lecon;R.lecon=function(id){_lecon(id);const n=SENTS().filter(s=>s.lid===id).length;if(n<3)return;
+  const b=el(`<button class="card tint-butter" type="button" data-go="phrases-${id}" style="text-align:left;border:0"><span class="kicker">Réviser</span><h3>🃏 Les ${n} phrases de cette leçon</h3><p class="small muted">Flashcards, QCM, remettre dans l'ordre, écoute et dictée.</p></button>`);
+  const ex=[...V.querySelectorAll("h2")].find(h=>h.textContent.trim()==="Exercices");const row=ex&&ex.closest(".row");if(row)row.before(b);else V.append(b);};
+// mastery goal setting on the voices/settings page
+const _voix=R.voix;R.voix=function(){_voix();const c=el(`<div class="card"><h3>🏆 Objectif de maîtrise</h3><p class="small">Nombre de bonnes réponses nécessaires dans chaque mode (QCM, écrit, écoute) pour qu'un mot ou une phrase soit « maîtrisé ». Une erreur retire 2 points.</p></div>`);
+  c.append(subtabs([["10","10"],["20","20"],["30","30"],["50","50"]],String(mGoal()),k=>{S.settings.mastery=+k;save();route();}));V.append(c);};
 
 /* ================= ANIMATED CAPSULES + VIDEO SERIES ================= */
 R.capsules=function(){
