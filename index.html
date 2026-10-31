@@ -17826,24 +17826,24 @@ R.cours=function(){
 };
 
 /* ---------- exercise item ---------- */
-function renderItem(it,n,onAnswer){
+function renderItem(it,n,onAnswer,restore){
   const box=el(`<div class="q"><span class="qn">${esc(n)}</span></div>`);
-  let answered=false;
-  const fb=(ok,txt)=>{const f=el(`<div class="fb ${ok?"ok":"ko"}"></div>`);f.innerHTML=(ok?"<b>Bravo !</b> ":"<b>Pas tout à fait.</b> ")+txt;box.append(f);if(!answered){answered=true;if(it.men&&it.mk){mastery(it.men,it.mk,ok);box.append(el(mBox(it.men,true)));}onAnswer&&onAnswer(ok);}};
+  let answered=false,replay=false,val=null;
+  const fb=(ok,txt)=>{const f=el(`<div class="fb ${ok?"ok":"ko"}"></div>`);f.innerHTML=(ok?"<b>Bravo !</b> ":"<b>Pas tout à fait.</b> ")+txt;box.append(f);if(!answered){answered=true;if(it.men&&it.mk&&!replay){mastery(it.men,it.mk,ok);box.append(el(mBox(it.men,true)));}onAnswer&&onAnswer(ok,val,replay);}};
   if(it.audio)box.append(el(`<div class="row">${pb(it.audio)}<span class="small muted">Écoute d'abord</span></div>`));
   if(it.pic)box.append(el(`<div class="pic">${it.pic}</div>`));
   if(it.t==="mc"){
     box.append(el(`<p class="qt">${esc(it.q)}</p>`));const o=el(`<div class="opts"></div>`);
     const order=it.keep?it.o.map((_,i)=>i):shuffle(it.o.map((_,i)=>i));
     order.forEach(i=>{const opt=it.o[i];const b=el(`<button class="opt" type="button">${esc(opt)}</button>`);b.dataset.i=i;b.addEventListener("click",()=>{if(answered)return;
-      const ok=i===it.a;b.classList.add(ok?"right":"wrong");$$(".opt",o).forEach(x=>{if(+x.dataset.i===it.a)x.classList.add("right");});fb(ok,esc(it.e||""));if(it.sayAfter)speak(it.sayAfter);});o.append(b);});
+      const ok=i===it.a;val=i;b.classList.add(ok?"right":"wrong");$$(".opt",o).forEach(x=>{if(+x.dataset.i===it.a)x.classList.add("right");});fb(ok,esc(it.e||""));if(it.sayAfter&&!replay)speak(it.sayAfter);});o.append(b);});
     box.append(o);
   }else if(it.t==="gap"||it.t==="fix"||it.t==="type"){
     box.append(el(`<p class="qt">${it.t==="fix"?"Corrige la phrase : ":""}${esc(it.q)}</p>`));
     const row=el(`<div class="row" style="flex-wrap:nowrap"><input class="inp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${it.t==="fix"?"Écris la phrase corrigée":"Ta réponse"}"><button class="btn sm" type="button">OK</button></div>`);
     const inp=row.querySelector("input");const go=()=>{if(answered||!inp.value.trim())return;
-      const ok=it.a.some(a=>same(a,inp.value)||(it.t==="type"&&stripArt(norm(a))===stripArt(norm(inp.value))));inp.disabled=true;
-      fb(ok,(ok?"":"Réponse : <b>"+esc(it.a[0])+"</b>. ")+esc(it.e||""));if(it.t!=="gap"||ok)speak(it.sayAfter||it.a[0]);};
+      const ok=it.a.some(a=>same(a,inp.value)||(it.t==="type"&&stripArt(norm(a))===stripArt(norm(inp.value))));val=inp.value;inp.disabled=true;
+      fb(ok,(ok?"":"Réponse : <b>"+esc(it.a[0])+"</b>. ")+esc(it.e||""));if((it.t!=="gap"||ok)&&!replay)speak(it.sayAfter||it.a[0]);};
     row.querySelector("button").addEventListener("click",go);inp.addEventListener("keydown",e=>{if(e.key==="Enter")go();});box.append(row);
   }else if(it.t==="order"){
     box.append(el(`<p class="qt">Remets dans l'ordre : <span class="muted">${esc(it.fr||"")}</span></p>`));
@@ -17852,9 +17852,14 @@ function renderItem(it,n,onAnswer){
       c.addEventListener("click",()=>{if(answered||c.classList.contains("used"))return;c.classList.add("used");picked.push(o.w);
         const z=el(`<button class="wchip" type="button">${esc(o.w)}</button>`);z.addEventListener("click",()=>{if(answered)return;const k=Array.from(zone.children).indexOf(z);picked.splice(k,1);z.remove();c.classList.remove("used");});zone.append(z);});poolEl.append(c);});
     const ck=el(`<button class="btn sm" type="button" style="align-self:flex-start">Vérifier</button>`);
-    ck.addEventListener("click",()=>{if(answered||!picked.length)return;const ok=same(picked.join(" "),it.a);fb(ok,(ok?"":"Réponse : <b>"+esc(it.a)+"</b>"));speak(it.a);});
+    ck.addEventListener("click",()=>{if(answered||!picked.length)return;const ok=same(picked.join(" "),it.a);val=picked.slice();fb(ok,(ok?"":"Réponse : <b>"+esc(it.a)+"</b>"));if(!replay)speak(it.a);});
     box.append(zone,poolEl,ck);
   }
+  if(restore!=null){replay=true;try{
+    if(it.t==="mc"){const b=box.querySelector(`.opt[data-i="${restore}"]`);if(b)b.click();}
+    else if(it.t==="order"){(Array.isArray(restore)?restore:[]).forEach(w=>{const c=[...box.querySelectorAll(".chips .wchip:not(.used)")].find(x=>x.textContent===w);if(c)c.click();});box.querySelector(".btn.sm").click();}
+    else{const inp=box.querySelector("input");if(inp){inp.value=String(restore);box.querySelector(".row .btn").click();}}
+  }catch(e){}replay=false;box.classList.add("restored");}
   return box;
 }
 
@@ -17880,12 +17885,21 @@ R.lecon=function(id){
   if(l.ex.length)V.append(exs);
   if(l.pron)V.append(el(`<div class="card tint-lilac"><span class="hand">prononciation ✦</span><p>${esc(l.pron)}</p></div>`));
   const total=l.items.length;let ans=0,good=0;
+  const LP=()=>{const p=S.lessons[l.id]||(S.lessons[l.id]={best:0});p.cur=p.cur||{};p.hist=p.hist||[];return p;};
   const hd=el(`<div class="row" style="justify-content:space-between"><h2>Exercices</h2><span class="tag" id="sc">0 / ${total}</span></div>`);V.append(hd);
+  const notes=el(`<div></div>`);V.append(notes);
+  const drawNotes=()=>{const p=S.lessons[l.id];notes.innerHTML="";if(!p||!(p.hist||[]).length)return;
+    const c=el(`<div class="card notes"><h3>📒 Mes notes</h3><div class="row" style="gap:6px;flex-wrap:wrap">${p.hist.slice(-12).map(h=>`<span class="tag ${h.pct>=70?"done":""}">${esc(h.d.slice(8,10)+"/"+h.d.slice(5,7))} · ${h.pct} %</span>`).join("")}</div><p class="small muted">Meilleure note : <b>${p.best} %</b> · ${p.hist.length} tentative${p.hist.length>1?"s":""}</p></div>`);
+    const rb=el(`<button class="btn line sm" type="button" style="align-self:flex-start">🔄 Refaire les exercices (tes notes restent)</button>`);rb.addEventListener("click",()=>{const q=LP();q.cur={};save();route();});c.append(rb);notes.append(c);};
+  drawNotes();
   const list=el(`<div class="stack"></div>`);V.append(list);const result=el(`<div></div>`);
-  l.items.forEach((it,k)=>list.append(renderItem(it,(k+1)+" / "+total,ok=>{ans++;if(ok)good++;log("ex");
-    hd.querySelector("#sc").textContent=good+" bonnes · "+ans+" / "+total;
-    if(ans===total){const pct=Math.round(good/total*100);const p=S.lessons[l.id]||{best:0};p.best=Math.max(p.best||0,pct);p.done=true;S.lessons[l.id]=p;save();
-      result.innerHTML="";result.append(el(`<div class="card ${pct>=70?"tint-mint":"tint-butter"}"><h3>${pct>=70?"Leçon validée ✦":"Leçon terminée"}</h3><p>Score : <b>${pct} %</b>. ${pct>=70?"Tu peux passer à la suite.":"Relis l'explication et refais les exercices demain."}</p></div>`));}})));
+  const cur=(S.lessons[l.id]&&S.lessons[l.id].cur)||{};
+  l.items.forEach((it,k)=>{const sv=cur[k];list.append(renderItem(it,(k+1)+" / "+total,(ok,val,replay)=>{ans++;if(ok)good++;
+    if(!replay){log("ex");const p=LP();p.cur[k]={v:val,ok};save();}
+    hd.querySelector("#sc").textContent=good+(good>1?" bonnes":" bonne")+" · "+ans+" / "+total;
+    if(ans===total){const pct=Math.round(good/total*100);const p=LP();
+      if(!p.cur._scored){p.best=Math.max(p.best||0,pct);p.done=true;p.hist.push({d:today(),pct});p.cur._scored=1;save();drawNotes();}
+      result.innerHTML="";result.append(el(`<div class="card ${pct>=70?"tint-mint":"tint-butter"}"><h3>${pct>=70?"Leçon validée ✦":"Leçon terminée"}</h3><p>Score : <b>${pct} %</b>. ${pct>=70?"Tu peux passer à la suite.":"Relis l'explication et refais les exercices demain."}</p></div>`));}},sv?sv.v:undefined));});
   V.append(result);
   const more=el(`<div class="card"><h3>Encore plus d'exercices</h3><p class="small muted">L'IA crée 6 nouvelles questions sur cette leçon, différentes à chaque fois.</p><button class="btn ghost" type="button">Générer des exercices</button><div class="stack"></div></div>`);
   more.querySelector("button").addEventListener("click",async ev=>{const b=ev.currentTarget;const out=more.lastElementChild;b.disabled=true;out.innerHTML=`<p class="small muted">L'IA prépare tes exercices…</p>`;
@@ -17893,17 +17907,22 @@ R.lecon=function(id){
     try{const arr=await sample.json(`You write English grammar exercises for a French speaker (CEFR ${l.lvl}). Topic: "${l.title}" (${l.goal}). Create 6 NEW varied exercises about everyday life and work. Reply with only a JSON array. Each item is either {"t":"mc","q":"sentence with ___","o":["option","option","option"],"a":<index of the correct option>,"e":"short explanation in French"} or {"t":"gap","q":"sentence with ___ and a hint in parentheses","a":["accepted answer","other accepted answer"],"e":"short explanation in French"}. Mix both types.`,{cache:false});
       out.innerHTML="";const valid=(Array.isArray(arr)?arr:[]).filter(x=>x&&typeof x.q==="string"&&((x.t==="mc"&&Array.isArray(x.o)&&typeof x.a==="number"&&x.o[x.a]!=null)||(x.t==="gap"&&Array.isArray(x.a)&&x.a.length)));
       if(!valid.length)out.innerHTML=`<p class="notice">Les exercices n'ont pas pu être créés. Réessaie.</p>`;
-      valid.forEach((it,k)=>{if(it.o)it.o=it.o.map(String);if(it.t==="gap")it.a=it.a.map(String);out.append(renderItem(it,"IA · "+(k+1),()=>log("ex")));});
+      valid.forEach(it=>{if(it.o)it.o=it.o.map(String);if(it.t==="gap")it.a=it.a.map(String);});const p=LP();p.ai={items:valid,ans:{}};save();drawAi();
     }catch(e){out.innerHTML=`<p class="notice">${esc(aiErr(e)||"Arrêté.")}</p>`;}
     b.disabled=false;b.textContent="Générer d'autres exercices";});
+  const drawAi=()=>{const p=S.lessons[l.id];const a=p&&p.ai;if(!a||!a.items)return;const out=more.lastElementChild;out.innerHTML="";
+    a.items.forEach((it,k)=>{const sv=a.ans[k];out.append(renderItem(it,"IA · "+(k+1),(ok,val,replay)=>{if(!replay){log("ex");a.ans[k]={v:val,ok};save();}},sv?sv.v:undefined));});
+    more.querySelector("button").textContent="Générer d'autres exercices";};
+  drawAi();
   V.append(more);
   const wr=el(`<div class="card tint-cobalt"><span class="kicker">Rédaction</span><p><b>${esc(l.write)}</b></p><textarea class="inp" placeholder="Écris en anglais…"></textarea><div class="row"><button class="btn" type="button">Corriger avec l'IA</button></div><div></div></div>`);
-  const ta=wr.querySelector("textarea");try{ta.value=localStorage.getItem("ptb2-wr-"+l.id)||"";}catch(e){}
-  ta.addEventListener("input",()=>{try{localStorage.setItem("ptb2-wr-"+l.id,ta.value);}catch(e){}});
+  const ta=wr.querySelector("textarea");const P0=S.lessons[l.id];ta.value=(P0&&P0.wr&&P0.wr.text)||"";if(!ta.value){try{ta.value=localStorage.getItem("ptb2-wr-"+l.id)||"";}catch(e){}}
+  let wt=null;ta.addEventListener("input",()=>{clearTimeout(wt);wt=setTimeout(()=>{const p=LP();p.wr=Object.assign(p.wr||{},{text:ta.value});save();},600);});
+  if(P0&&P0.wr&&P0.wr.corr){wr.lastElementChild.innerHTML=`<p class="small muted">Dernière correction (${esc((P0.wr.date||"").split("-").reverse().join("/"))})${P0.wr.note!=null?" · note "+P0.wr.note+"/10":""}</p><div class="ai-out"></div>`;wr.lastElementChild.lastElementChild.textContent=P0.wr.corr;}
   wr.querySelector(".btn").addEventListener("click",async ev=>{const b=ev.currentTarget;const out=wr.lastElementChild;if(!ta.value.trim()){out.innerHTML=`<p class="small">Écris d'abord ton texte.</p>`;return;}
     const sample=await getSample();if(!sample){out.innerHTML=NOAI;return;}
     b.disabled=true;out.innerHTML=`<div class="ai-out">Correction en cours…</div>`;const box=out.firstElementChild;
-    try{await sample(`You are a kind but precise English teacher. Your student is French, level CEFR ${l.lvl}, and just studied "${l.title}". Task: "${l.write}". Correct the student's text below. Answer in French, plain text without Markdown symbols, in this order:\nTEXTE CORRIGÉ : the full corrected text in English.\nERREURS : a short list, each line "• erreur → correction : explication simple".\nNOTE : a mark out of 10 and one concrete tip.\n\nStudent's text:\n${ta.value.slice(0,4000)}`,{cache:false,onText:({text})=>{box.textContent=text;}});log("ex");}
+    try{await sample(`You are a kind but precise English teacher. Your student is French, level CEFR ${l.lvl}, and just studied "${l.title}". Task: "${l.write}". Correct the student's text below. Answer in French, plain text without Markdown symbols, in this order:\nTEXTE CORRIGÉ : the full corrected text in English.\nERREURS : a short list, each line "• erreur → correction : explication simple".\nNOTE : a mark out of 10 and one concrete tip.\n\nStudent's text:\n${ta.value.slice(0,4000)}`,{cache:false,onText:({text})=>{box.textContent=text;}});log("ex");const p=LP();const m=box.textContent.match(/NOTE\s*:?\s*(\d+(?:[.,]\d)?)\s*\/\s*10/i);p.wr={text:ta.value,corr:box.textContent,date:today(),note:m?parseFloat(m[1].replace(",",".")):null};p.wrHist=(p.wrHist||[]).concat(m?[{d:today(),note:p.wr.note}]:[]).slice(-20);save();}
     catch(e){box.textContent=(e&&e.text?e.text+"\n\n":"")+aiErr(e);}
     b.disabled=false;});
   V.append(wr);
