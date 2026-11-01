@@ -507,6 +507,24 @@ body.noscroll{overflow:hidden}
 .dwrap{border-bottom:1px dashed var(--line)}.dwrap .drow{border-bottom:0}.dwrap .msense{padding:0 2px 10px 46px;width:auto}
 .mchip{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:5px 9px;text-align:left;font-size:.85rem;display:flex;flex-direction:column;min-width:0;max-width:100%;color:var(--ink)}
 .mchip b{display:inline;color:var(--cobalt)}.mchip small{color:var(--muted);font-size:.7rem}.mchip.cur{outline:2px solid var(--cobalt)}
+.bdwrap{padding:8px}.bd{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.bdc{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--surface);min-height:74px;padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1px}
+.bdc .bdn{position:absolute;top:2px;left:5px;font-size:.65rem;color:var(--muted)}.bdc .bde{font-size:1.25rem}.bdc .bdt{font-size:.62rem;line-height:1.1;color:var(--muted)}.bdc .bdp{font-size:1rem;min-height:1.1em;letter-spacing:-2px}
+.bdc.k-start,.bdc.k-end{background:var(--mint-soft)}.bdc.k-again,.bdc.k-fwd{background:var(--butter-soft)}.bdc.k-skip,.bdc.k-back{background:var(--red-soft)}
+.bdctl{display:flex;gap:12px;align-items:center}.bdmsg{margin:0}.bdsc{gap:6px;flex-wrap:wrap}
+.dice{font-size:3.2rem;line-height:1;width:64px;height:64px;display:grid;place-items:center;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 0 var(--cobalt-soft)}
+.dice.big{font-size:4rem;width:84px;height:84px;margin:0 auto}.dice.rolling{animation:dshake .16s infinite}
+@keyframes dshake{0%{transform:rotate(-12deg) scale(1.05)}50%{transform:rotate(12deg) scale(.95)}100%{transform:rotate(-12deg) scale(1.05)}}
+.chal[hidden]{display:none}.chal{display:flex;flex-direction:column;gap:8px;border:2px solid var(--cobalt)}.chal-h{font-weight:800;font-size:1.15rem;display:flex;flex-direction:column}.chal-h small{font-weight:500;font-size:.95rem;color:var(--muted)}
+.inp.good,.vwi.good{border-color:var(--mint);background:var(--mint-soft)}.inp.bad,.vwi.bad{border-color:var(--red);background:var(--red-soft)}
+.fb{margin:0}.fb.ok{color:var(--ink)}.fb.ko{color:var(--ink)}
+.srtpool{min-height:48px;padding:8px;border:1px dashed var(--line);border-radius:14px}.wchip.on{outline:3px solid var(--cobalt)}.wchip.good{background:var(--mint-soft);border-color:var(--mint)}.wchip.bad{background:var(--red-soft);border-color:var(--red)}
+.srtbins{display:grid;grid-template-columns:1fr 1fr;gap:10px}.srtbin{min-height:150px;border:2px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:8px;cursor:pointer}
+.srtbin.k0{background:var(--mint-soft);border-color:var(--mint)}.srtbin.k1{background:var(--butter-soft);border-color:var(--butter)}
+.vwword{display:inline-flex;align-items:center;gap:1px;white-space:nowrap}.vww{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:1.25rem;font-weight:700}.vwc.sp{width:.5em}
+.vwi{width:1.5em;height:1.8em;text-align:center;font:inherit;border:0;border-bottom:3px solid var(--cobalt);background:var(--cobalt-soft);border-radius:6px 6px 0 0;color:var(--ink);padding:0}
+.talkc{text-align:center;align-items:center}.talkt{font-size:1.3rem}.talktm{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums}.talktm.hot{color:var(--red)}
+@media (max-width:560px){.bdc{min-height:60px}.bdc .bdt{display:none}}
 </style>
 
 <div class="app">
@@ -19547,6 +19565,124 @@ forklift|You need training to drive it.|A machine that lifts pallets.`;
 (function(){const M={};EN_HINTS_TXT.split("\n").forEach(l=>{const p=l.split("|");if(p.length===3)M[p[0]]=[p[1],p[2]];});
   Object.values(GAME_WORDS).forEach(list=>list.forEach(w=>{if(M[w.en]){w.hfr=w.h;w.h=M[w.en];}}));})();
 
+// DATA for the new games (board game, sorting, vowels, talk for a minute, opposite & grammar crosswords)
+const L6=["A1","A2","B1","B2","C1","C2"];
+/* ---- NAME 3: [level, emoji, english label, french label, words] ---- */
+const NAME3=[
+["A1","🥕","vegetables","légumes","carrot potato tomato onion cucumber lettuce pepper broccoli cabbage peas beans corn garlic spinach mushroom cauliflower courgette zucchini aubergine eggplant leek celery pumpkin radish beetroot asparagus"],
+["A1","🍎","fruits","fruits","apple banana orange pear grape grapes strawberry cherry lemon peach plum pineapple mango melon watermelon kiwi raspberry blueberry apricot lime coconut fig"],
+["A1","🐶","pets","animaux de compagnie","dog cat rabbit hamster fish goldfish bird parrot mouse guinea pig turtle tortoise snake horse"],
+["A1","🦁","wild animals","animaux sauvages","lion tiger elephant giraffe zebra monkey bear wolf fox snake crocodile kangaroo deer gorilla hippo rhino leopard cheetah eagle"],
+["A1","🐄","farm animals","animaux de la ferme","cow pig sheep horse chicken hen goat duck goose donkey rooster turkey"],
+["A1","🎨","colours","couleurs","red blue green yellow black white orange pink purple brown grey gray beige gold silver"],
+["A1","📅","days of the week","jours de la semaine","monday tuesday wednesday thursday friday saturday sunday"],
+["A1","🗓️","months","mois","january february march april may june july august september october november december"],
+["A1","❄️","seasons and weather","saisons et météo","spring summer autumn fall winter rain snow sun wind cloud sunny rainy windy cloudy cold hot warm"],
+["A1","👨‍👩‍👧","family members","membres de la famille","mother father mum mom dad sister brother son daughter grandmother grandfather grandma grandpa aunt uncle cousin wife husband baby parents niece nephew"],
+["A1","🦵","parts of the body","parties du corps","head arm leg hand foot feet eye eyes ear nose mouth hair finger toe knee back neck shoulder face teeth tooth stomach chest elbow"],
+["A1","🏠","rooms in the house","pièces de la maison","kitchen bedroom bathroom living room lounge dining room hall hallway garage attic basement cellar office toilet"],
+["A1","👕","clothes","vêtements","shirt t-shirt jeans trousers pants dress skirt jacket coat sweater jumper hat cap socks shoes boots shorts scarf gloves hoodie"],
+["A1","☕","drinks","boissons","water milk tea coffee juice orange juice cola lemonade smoothie hot chocolate beer wine soda milkshake"],
+["A1","🍳","things you eat at breakfast","ce qu'on mange au petit-déjeuner","bread toast eggs egg cereal butter jam honey croissant yoghurt yogurt pancakes bacon fruit porridge cheese"],
+["A1","✏️","classroom objects","objets de la classe","pen pencil book notebook ruler eraser rubber scissors glue bag desk chair board marker sharpener calculator folder crayon"],
+["A1","🔢","numbers","nombres","one two three four five six seven eight nine ten eleven twelve twenty hundred thousand zero"],
+["A2","🚗","ways to travel","moyens de transport","car bus train plane bike bicycle taxi boat ship tram metro underground subway motorbike scooter walk foot coach ferry"],
+["A2","💼","jobs","métiers","teacher doctor nurse driver cook chef waiter cleaner police officer farmer engineer lawyer dentist pilot cashier receptionist manager mechanic hairdresser secretary"],
+["A2","⚽","sports","sports","football soccer tennis basketball volleyball swimming running cycling skiing boxing golf rugby yoga dancing hockey baseball judo karate climbing"],
+["A2","🛋️","living room furniture","meubles du salon","sofa couch armchair table coffee table lamp shelf bookshelf tv television rug carpet cushion curtains"],
+["A2","🍴","kitchen things","objets de cuisine","fridge oven cooker microwave kettle toaster sink knife fork spoon plate bowl cup glass pan pot dishwasher freezer"],
+["A2","🏪","shops","magasins","bakery butcher supermarket pharmacy chemist bookshop bookstore post office bank clothes shop newsagent florist market"],
+["A2","🌍","countries","pays","france poland spain italy germany england uk usa america canada china japan brazil mexico portugal russia india australia ireland"],
+["A2","😊","feelings","émotions","happy sad angry tired bored scared afraid excited nervous worried surprised proud lonely calm upset jealous confused relaxed"],
+["A2","🍬","sweet things","choses sucrées","cake chocolate sweets candy ice cream sugar honey biscuit cookie doughnut jam pie"],
+["A2","🧂","salty things","choses salées","chips crisps popcorn cheese bacon ham olives nuts peanuts pretzels salt fries"],
+["A2","🔌","things that need electricity","choses qui ont besoin d'électricité","computer laptop phone tv television fridge lamp oven microwave kettle hairdryer washing machine radio toaster"],
+["A2","🏭","things in a warehouse","choses dans un entrepôt","pallet box boxes forklift scanner shelf shelves conveyor tape trolley cart label parcel truck container rack gloves"],
+["B1","🎒","things to pack for a trip","choses à emporter en voyage","passport ticket suitcase charger toothbrush sunglasses sunscreen camera map wallet clothes towel money adapter"],
+["B1","🗣️","verbs of communication","verbes pour communiquer","say tell speak talk ask answer explain shout whisper call email text reply argue discuss chat mention"],
+["B1","🏃","verbs of movement","verbes de mouvement","walk run jump climb swim fly drive ride crawl dance slide hop skip march"],
+["B1","🧑‍💼","things you do at work","choses qu'on fait au travail","meeting email call report deadline presentation shift break lunch interview training"],
+["B1","📈","things that can go up or down","choses qui montent ou baissent","prices price salary temperature sales profit rent taxes tax costs unemployment"],
+["B1","🎬","types of film","genres de films","comedy horror drama thriller romance action documentary cartoon animation western musical sci-fi fantasy"],
+["B2","🔗","linking words for contrast","connecteurs d'opposition","however although though but yet whereas while nevertheless nonetheless despite unlike"],
+["B2","💰","words about money","mots sur l'argent","salary wage income debt loan savings budget tax rent mortgage interest profit invoice refund"],
+["B2","🌱","environmental problems","problèmes environnementaux","pollution deforestation flooding drought waste plastic smog erosion overfishing"],
+["B2","🧠","personality adjectives","adjectifs de personnalité","reliable generous stubborn ambitious honest lazy shy outgoing patient selfish confident moody bossy caring"],
+["C1","⚖️","words to give an opinion","mots pour donner son avis","arguably admittedly frankly personally undoubtedly clearly evidently presumably apparently"],
+["C1","📉","verbs for trends","verbes de tendance","rise increase grow soar rocket climb fall drop decline decrease plunge plummet fluctuate stabilise"],
+["C2","🎭","formal synonyms of 'say'","synonymes soutenus de « say »","state claim assert maintain argue declare contend allege remark observe affirm"]
+];
+/* ---- OPPOSITES for crossword & board: level -> [word, opposite] ---- */
+const OPPS={
+A1:[["large","small"],["ugly","beautiful"],["in","out"],["slow","fast"],["dirty","clean"],["dry","wet"],["summer","winter"],["white","black"],["give","take"],["long","short"],["soft","hard"],["up","down"],["left","right"],["full","empty"],["new","old"],["sad","happy"],["king","queen"],["yes","no"],["woman","man"],["girl","boy"],["hot","cold"],["open","close"],["day","night"],["rich","poor"],["above","below"],["die","live"],["high","low"],["strong","weak"],["early","late"],["first","last"]],
+A2:[["cheap","expensive"],["noisy","quiet"],["sour","sweet"],["gold","silver"],["sunny","rainy"],["whisper","shout"],["round","square"],["slim","fat"],["start","finish"],["buy","sell"],["win","lose"],["remember","forget"],["arrive","leave"],["push","pull"],["safe","dangerous"],["easy","difficult"],["polite","rude"],["heavy","light"],["thick","thin"],["borrow","lend"],["accept","refuse"],["always","never"],["inside","outside"],["question","answer"],["friend","enemy"],["love","hate"]],
+B1:[["increase","decrease"],["success","failure"],["maximum","minimum"],["ancient","modern"],["guilty","innocent"],["generous","selfish"],["forbid","allow"],["attack","defend"],["arrival","departure"],["import","export"],["profit","loss"],["temporary","permanent"],["public","private"],["victory","defeat"],["include","exclude"],["employer","employee"],["optimist","pessimist"],["rare","common"],["tight","loose"],["shallow","deep"],["sharp","blunt"],["wild","tame"]],
+B2:[["reveal","conceal"],["voluntary","compulsory"],["scarce","plentiful"],["praise","criticise"],["reward","punish"],["majority","minority"],["expand","shrink"],["genuine","fake"],["accurate","inaccurate"],["deny","admit"],["reject","approve"],["superior","inferior"],["vague","precise"],["humble","arrogant"],["ally","enemy"],["rural","urban"],["mature","childish"],["flexible","rigid"],["lenient","strict"],["sincere","insincere"]],
+C1:[["frugal","extravagant"],["transparent","opaque"],["concise","verbose"],["tactful","blunt"],["deteriorate","improve"],["abundance","scarcity"],["candid","evasive"],["meticulous","careless"],["affluent","impoverished"],["alleviate","aggravate"],["optimism","pessimism"],["tranquil","turbulent"],["novice","expert"],["obscure","famous"],["hostile","friendly"],["diminish","enlarge"],["spontaneous","planned"],["ascent","descent"]],
+C2:[["ephemeral","permanent"],["benevolent","malevolent"],["zenith","nadir"],["exacerbate","alleviate"],["laconic","verbose"],["frivolous","serious"],["austere","lavish"],["timid","audacious"],["profound","superficial"],["prodigal","thrifty"],["amiable","hostile"],["clandestine","open"],["diligent","lazy"],["lucid","confused"],["exuberant","subdued"],["obstinate","flexible"],["pristine","dirty"],["placid","agitated"]]
+};
+/* ---- GRAMMAR crossword bank: level -> [answer, sentence with ___] ---- */
+const GRAMCW={
+A1:[["watches","She usually ___ TV at 7 o'clock. (watch)"],["is","My brother ___ always hungry. (be)"],["listens","My friend ___ to music in the car. (listen)"],["have","Sometimes I ___ lunch at work. (have)"],["clean","We ___ our house every Saturday. (clean)"],["goes","My mother ___ to work by car. (go)"],["sneeze","Cats make me ___! Atchoo!"],["are","We ___ never late for class. (be)"],["drinks","He always ___ coffee in the morning. (drink)"],["eats","My father always ___ a big breakfast. (eat)"],["says","My little brother always ___ goodbye. (say)"],["laugh","I always ___ when I watch that funny show."],["visit","We usually ___ our grandmother on Sundays. (visit)"],["starts","Our class ___ at 8 o'clock. (start)"],["washes","He often ___ his car. (wash)"],["does","She always ___ her homework. (do)"],["has","He ___ two sisters. (have)"],["studies","My sister ___ English every evening. (study)"],["doesn't","She ___ like coffee. (négatif, en 1 mot)"],["does","___ he work on Mondays? (question)"]],
+A2:[["went","Yesterday I ___ to the cinema. (go)"],["bought","She ___ a new dress last week. (buy)"],["was","It ___ very cold last winter. (be)"],["were","They ___ at home yesterday. (be)"],["saw","I ___ a great film on Saturday. (see)"],["didn't","I ___ go out last night. (négatif)"],["ate","We ___ pizza for dinner. (eat)"],["took","He ___ the bus to work. (take)"],["met","I ___ my best friend at school. (meet)"],["wrote","She ___ a long email. (write)"],["cooking","I'm ___ dinner right now. (cook)"],["going","We are ___ to travel next summer. (go)"],["taller","My brother is ___ than me. (tall)"],["best","This is the ___ pizza in town. (good)"],["some","Can I have ___ water, please?"],["any","There isn't ___ milk in the fridge."],["must","You ___ wear a helmet here. (obligation)"],["should","You ___ see a doctor. (conseil)"],["can","I ___ swim very well. (capacité)"],["was","I ___ sleeping when you called. (be)"]],
+B1:[["been","Have you ever ___ to London? (be)"],["since","I've lived here ___ 2020."],["for","I've worked here ___ three years."],["already","I've ___ finished my report."],["yet","Have you eaten ___?"],["just","She has ___ left. (à l'instant)"],["seen","I have never ___ snow. (see)"],["would","If I had money, I ___ travel the world."],["will","If it rains, I ___ stay at home."],["used","I ___ to play tennis when I was a child."],["told","She ___ me the truth. (tell)"],["said","He ___ that he was tired. (say)"],["who","The woman ___ lives next door is a nurse."],["which","The book ___ I bought is great."],["made","This phone is ___ in China. (passif)"],["while","___ I was cooking, the phone rang."],["unless","You won't pass ___ you study."],["although","___ it was raining, we went out."],["enough","I don't have ___ time."],["too","This coffee is ___ hot to drink."]],
+B2:[["had","If I ___ known, I would have helped you."],["have","I would ___ called you if I had had time."],["wish","I ___ I had more free time."],["been","The report has ___ sent to the client. (passif)"],["being","The building is ___ renovated right now."],["whom","The person to ___ I spoke was very kind."],["whose","The man ___ car was stolen called the police."],["despite","___ the rain, the match continued."],["must","She ___ have forgotten; she's never late. (déduction)"],["can't","He ___ be at home; I just saw him at work. (déduction)"],["having","I regret not ___ studied harder."],["to","I'm looking forward ___ seeing you."],["get","I need to ___ my car repaired. (causatif)"],["had","She ___ her hair cut yesterday. (causatif)"],["would","I'd rather you ___ smoke here. (préférence)"],["supposed","You were ___ to arrive at 9."],["might","Take an umbrella; it ___ rain."],["whereas","He loves sport, ___ his sister hates it."],["neither","I don't like it, and ___ does she."],["unless","I'll go ___ it rains."]],
+C1:[["never","___ have I seen such a mess. (inversion)"],["had","___ I known, I would have come. (inversion)"],["only","Not ___ did he lie, but he also stole."],["were","___ I you, I would accept the offer. (inversion)"],["should","___ you need help, call me. (inversion)"],["little","___ did she know what was coming."],["rarely","___ do we see such talent. (inversion)"],["what","___ I need is a long holiday. (cleft)"],["it","___ was John who broke the window. (cleft)"],["would","I'd rather you ___ tell anyone."],["time","It's high ___ we left."],["though","Tired ___ she was, she kept working."],["hardly","___ had I arrived when it started."],["sooner","No ___ had we left than it rained."],["were","If he ___ to resign, who would replace him?"],["having","___ finished, she went home. (participe)"],["whatsoever","There's no reason ___. (emphase)"],["whereby","A system ___ workers share profits."]],
+C2:[["notwithstanding","___ the costs, the project went ahead."],["albeit","He agreed, ___ reluctantly."],["insofar","___ as I know, it's legal."],["lest","Speak quietly ___ you wake the baby."],["hitherto","A ___ unknown species was found."],["inasmuch","___ as he helped, he deserves credit."],["whence","They returned to the place ___ they came."],["thereby","He resigned, ___ ending the crisis."],["heretofore","___, no one had complained."],["nonetheless","It was risky; ___, they tried."],["be","Come what may, ___ it rain or shine."],["so","___ be it. (formule figée)"],["were","Had it not ___ for you, I'd have failed."],["but","She is nothing ___ kind."],["whereupon","He finished, ___ everyone applauded."],["such","___ was his anger that he left. (inversion)"]]
+};
+/* ---- SORTING: level -> [title, [left label, right label], [[word, 0|1, why?]]] ---- */
+const SORTS={
+A1:[["🍎 Healthy ou unhealthy ?",["Healthy 🥦","Unhealthy 🍟"],[["water",0],["burger",1],["apple",0],["cola",1],["carrot",0],["cake",1],["milk",0],["crisps",1],["banana",0],["ice cream",1],["salad",0],["doughnut",1],["grapes",0],["sweets",1],["broccoli",0],["fries",1],["fish",0],["pizza",1],["pear",0],["hot dog",1]]],
+["🍽️ I eat… ou I drink… ?",["I eat 🍽️","I drink ☕"],[["sandwich",0],["tea",1],["pasta",0],["water",1],["soup",0],["orange juice",1],["yoghurt",0],["hot chocolate",1],["grapes",0],["smoothie",1],["cereal",0],["milkshake",1],["biscuit",0],["lemonade",1],["noodles",0],["coffee",1],["doughnut",0],["mineral water",1],["crisps",0],["cocoa",1]]],
+["🎒 Dans le sac ou dans la trousse ?",["In my school bag 🎒","In my pencil case ✏️"],[["book",0],["pencil",1],["notebook",0],["ruler",1],["folder",0],["eraser",1],["lunch box",0],["pen",1],["water bottle",0],["sharpener",1],["calculator",0],["glue",1],["laptop",0],["crayons",1],["dictionary",0],["marker",1]]],
+["🐾 Pet ou wild animal ?",["Pet 🐶","Wild animal 🦁"],[["dog",0],["lion",1],["cat",0],["tiger",1],["hamster",0],["wolf",1],["goldfish",0],["bear",1],["rabbit",0],["giraffe",1],["parrot",0],["crocodile",1],["guinea pig",0],["fox",1]]],
+["🧥 Summer ou winter clothes ?",["Summer ☀️","Winter ❄️"],[["shorts",0],["coat",1],["sandals",0],["scarf",1],["t-shirt",0],["gloves",1],["swimsuit",0],["boots",1],["sunglasses",0],["sweater",1],["flip-flops",0],["woolly hat",1],["cap",0],["down jacket",1]]]],
+A2:[["🧮 Countable ou uncountable ?",["Countable (a / many)","Uncountable (much / some)"],[["apple",0,"an apple, two apples"],["water",1,"some water"],["chair",0],["furniture",1,"jamais « furnitures »"],["job",0],["work",1,"le travail en général"],["euro",0],["money",1],["suitcase",0],["luggage",1,"jamais « luggages »"],["tip",0],["advice",1,"a piece of advice"],["fact",0],["information",1,"jamais « informations »"],["song",0],["music",1],["trip",0],["travel",1],["loaf",0],["bread",1]]],
+["🔀 Regular ou irregular verb ?",["Regular (-ed)","Irregular"],[["work",0,"worked"],["go",1,"went"],["play",0,"played"],["eat",1,"ate"],["watch",0,"watched"],["buy",1,"bought"],["clean",0,"cleaned"],["take",1,"took"],["walk",0,"walked"],["see",1,"saw"],["open",0,"opened"],["write",1,"wrote"],["listen",0,"listened"],["drink",1,"drank"],["cook",0,"cooked"],["sleep",1,"slept"]]],
+["🛠️ Make ou do ?",["make","do"],[["a cake",0],["homework",1],["a mistake",0],["the dishes",1],["a decision",0],["sport",1],["money",0],["your best",1],["a phone call",0],["the shopping",1],["friends",0],["a favour",1],["noise",0],["the laundry",1],["a plan",0],["business",1]]],
+["🕒 In ou on (le temps) ?",["in","on"],[["the morning",0],["Monday",1],["July",0],["my birthday",1],["2026",0],["the weekend (US)",1],["summer",0],["Christmas Day",1],["the evening",0],["15th May",1],["the 90s",0],["Friday night",1]]]],
+B1:[["😴 -ed ou -ing ?",["Ce que je RESSENS (-ed)","Ce qui PROVOQUE (-ing)"],[["I'm bored.",0],["The film is boring.",1],["She's interested.",0],["The book is interesting.",1],["We were tired.",0],["The trip was tiring.",1],["He's confused.",0],["The rules are confusing.",1],["I'm excited.",0],["The news is exciting.",1],["They're surprised.",0],["The result is surprising.",1]]],
+["⏳ For ou since ?",["for (durée)","since (point de départ)"],[["two years",0],["2020",1],["a long time",0],["Monday",1],["three hours",0],["last summer",1],["ages",0],["I was a child",1],["a week",0],["9 o'clock",1],["six months",0],["Christmas",1]]],
+["🗣️ Say ou tell ?",["say","tell"],[["hello",0],["the truth",1],["sorry",0],["a story",1],["goodbye",0],["a lie",1],["thank you",0],["a joke",1],["yes",0],["the time",1],["something",0],["me the news",1],["a word",0],["the difference",1]]],
+["🕰️ Present perfect ou past simple ?",["Present perfect (have + V3)","Past simple (V2)"],[["already",0],["yesterday",1],["ever",0],["last week",1],["yet",0],["in 2019",1],["just",0],["two days ago",1],["never",0],["when I was young",1],["so far",0],["last night",1]]]],
+B2:[["🎩 Formal ou informal ?",["Formal","Informal"],[["purchase",0],["buy",1],["assist",0],["help",1],["require",0],["need",1],["commence",0],["start",1],["inquire",0],["ask",1],["obtain",0],["get",1],["sufficient",0],["enough",1],["regarding",0],["about",1],["nevertheless",0],["anyway",1],["I apologise",0],["sorry",1]]],
+["🔗 Contraste ou conséquence ?",["Contraste (opposition)","Conséquence (résultat)"],[["however",0],["therefore",1],["although",0],["so",1],["whereas",0],["consequently",1],["despite",0],["as a result",1],["nevertheless",0],["thus",1],["on the other hand",0],["hence",1]]],
+["✅ Gerund (-ing) ou infinitive (to) ?",["+ -ing","+ to + verbe"],[["enjoy",0],["want",1],["avoid",0],["decide",1],["finish",0],["hope",1],["mind",0],["plan",1],["suggest",0],["refuse",1],["keep",0],["promise",1],["consider",0],["afford",1]]]],
+C1:[["😊 Connotation positive ou négative ?",["Positive 😊","Negative 😒"],[["slim",0],["skinny",1],["thrifty",0],["stingy",1],["confident",0],["arrogant",1],["determined",0],["stubborn",1],["curious",0],["nosy",1],["assertive",0],["bossy",1],["youthful",0],["childish",1],["frank",0],["blunt",1]]],
+["🧱 Collocations : make ou take ?",["make","take"],[["an effort",0],["a break",1],["progress",0],["a risk",1],["sense",0],["advantage",1],["a living",0],["place",1],["an impression",0],["responsibility",1],["amends",0],["for granted",1]]]],
+C2:[["🎭 Registre soutenu ou familier ?",["Soutenu","Familier"],[["to deem",0],["to reckon",1],["to endeavour",0],["to have a go",1],["notwithstanding",0],["anyway",1],["to procure",0],["to grab",1],["inebriated",0],["wasted",1],["to reside",0],["to live",1],["to ascertain",0],["to find out",1],["exceedingly",0],["super",1]]],
+["⚖️ Hedging ou boosting ?",["Prudent (hedging)","Affirmé (boosting)"],[["arguably",0],["undoubtedly",1],["it would seem",0],["clearly",1],["to some extent",0],["without question",1],["tends to",0],["invariably",1],["presumably",0],["unequivocally",1]]]]
+};
+/* ---- TALK FOR A MINUTE topics ---- */
+const TALK={
+A1:["Your family.","Your favourite food.","Pets.","Your house.","Your best friend.","Your favourite colour and why.","Your morning routine.","The weather today.","Your favourite season.","Your hobbies."],
+A2:["Your last holiday.","Your favourite film.","The city you grew up in.","Your favourite singer or band.","What you did last weekend.","Your job.","Healthy habits.","Your favourite sport.","Your friends.","Something you enjoy doing."],
+B1:["Your future plans.","Places you'd like to visit.","The best day of your life.","Your most embarrassing moment.","What makes you happy.","What makes you feel proud.","Ways to improve your English.","Something you'd like to learn.","Something that makes you nervous.","Your perfect weekend."],
+B2:["How music impacts your life.","A difficult decision you made.","Is social media good for us?","The pros and cons of working from home.","A famous person you admire.","How your country has changed.","Should everyone learn a second language?","What makes a good manager?","Life in a big city vs the countryside.","Technology in education."],
+C1:["Will AI replace most jobs?","Is it ethical to eat meat?","The impact of tourism on local communities.","Should university be free?","The four-day working week.","Fake news and how to fight it.","What success really means.","Is happiness a choice?","Globalisation: winners and losers.","Privacy in the digital age."],
+C2:["Is the pursuit of economic growth sustainable?","To what extent is free will an illusion?","Should art be judged by the morality of the artist?","The paradox of choice in modern life.","Does language shape the way we think?","Meritocracy: myth or reality?","Can democracy survive social media?","The ethics of genetic engineering."]
+};
+const TALK_HELP={
+A1:["I have…","I like… because…","My favourite… is…","I usually…","It's…"],
+A2:["Last year, I went to…","I really enjoy… because…","For example,…","I think that…","The best thing is…"],
+B1:["In my opinion,…","One reason is that…","I've always wanted to…","What I like most is…","To sum up,…"],
+B2:["On the one hand… on the other hand…","It depends on…","I'd argue that…","A good example of this is…","All things considered,…"],
+C1:["It's widely believed that…, yet…","What concerns me most is…","This raises the question of…","I'm inclined to think that…","Ultimately,…"],
+C2:["One could make a compelling case that…","This is, to a large extent, a matter of…","Paradoxically,…","It would be naïve to assume that…","In the final analysis,…"]
+};
+/* ---- VOWELS game: word themes ---- */
+const VOWTH={
+"Couleurs":"red yellow green blue black orange white purple brown grey pink",
+"Nombres":"one two three four five six seven eight nine ten eleven twelve twenty",
+"Jours":"Monday Tuesday Wednesday Thursday Friday Saturday Sunday",
+"Mois":"January February March April May June July August September October November December",
+"Salutations":"hello hi good morning good afternoon good evening goodbye see you later how are you",
+"Corps":"arm leg body head foot hand chest face mouth nose eye ear knee shoulder",
+"Famille":"mother father sister brother daughter son aunt uncle cousin grandmother husband wife",
+"Nourriture":"bread cheese apple banana orange chicken potato tomato onion yoghurt sandwich"
+};
+const ROUTINE=["Kate has a very busy daily routine.","She always gets up at six o'clock.","Then, she gets washed and dressed.","After that, she has breakfast.","Then, she drives to work at seven.","She's a teacher at a college.","She teaches Spanish.","After work, she goes home.","Then, she goes cycling with her kids.","Her husband usually gets home at six.","She always has dinner with her family.","After that, they often watch TV together.","Sometimes, they go for a walk.","They like to talk about their day.","Finally, she goes to bed at ten.","Kate loves her daily routine."];
+
 // More original TOEIC practice items (same format as TOEIC in build_data.js)
 TOEIC.p1.push(
 ["🏭📦🚜","Un cariste déplace une palette avec un chariot élévateur.",["A forklift is lifting a pallet.","Boxes are being thrown away.","A truck is parked on the street.","A man is climbing a ladder."],0],
@@ -21396,18 +21532,19 @@ R.jeux=function(){
   V.append(head("Jeux",`Apprendre en <em>jouant</em>`,"Des jeux créés à partir de ton vocabulaire, différents à chaque partie. Choisis le niveau des mots, puis amuse-toi !"));
   V.append(lvlBar());
   const g=el(`<div class="grid"></div>`);const tints=["cobalt","lilac","mint","butter","cobalt","lilac","mint","butter"];
-  GAMES.forEach((x,i)=>{const best=(S.games||{})[x[0]];g.append(el(`<button class="topic gamecard" type="button" data-go="jeu-${x[0]}" style="background:var(--${tints[i]}-soft);border-color:transparent"><span class="emo big">${x[1]}</span><b class="tt">${x[2]}</b><small>${x[3]}</small>${best?`<span class="tag done" style="align-self:flex-start">${best} partie${best>1?"s":""}</span>`:""}</button>`));});
+  GAMES.forEach((x,i)=>{const best=(S.games||{})[x[0]];g.append(el(`<button class="topic gamecard" type="button" data-go="jeu-${x[0]}" style="background:var(--${tints[i%tints.length]}-soft);border-color:transparent"><span class="emo big">${x[1]}</span><b class="tt">${x[2]}</b><small>${x[3]}</small>${best?`<span class="tag done" style="align-self:flex-start">${best} partie${best>1?"s":""}</span>`:""}</button>`));});
   V.append(g);
 };
 function gameDone(id){S.games=S.games||{};S.games[id]=(S.games[id]||0)+1;log("ex");}
 const confetti=()=>{const c=el(`<div class="confetti" aria-hidden="true">${Array.from({length:24},(_,i)=>`<i style="left:${Math.random()*100}%;animation-delay:${(Math.random()*0.5).toFixed(2)}s;background:var(--${["cobalt","pink","orange","mint","lilac","butter"][i%6]})"></i>`).join("")}</div>`);document.body.append(c);setTimeout(()=>c.remove(),2200);};
+const GAME_FN={};setTimeout(()=>Object.assign(GAME_FN,Object.assign({mots:gCross,memory:gMemory,paires:gPairs,craft:gCraft,wordle:gWordle,pendu:gHang,idiomes:gIdiomQuiz,amis:gAmisQuiz},GAME_FN)),0);
 R.jeu=function(id){
   const meta=GAMES.find(x=>x[0]===id);if(!meta){location.hash="jeux";return;}
   V.append(back("jeux","Tous les jeux"));
   V.append(el(`<section class="stack"><span class="kicker">Jeu · ${gameLvl}</span><h1 class="view-title">${meta[1]} ${meta[2]}</h1><p class="lead">${meta[3]}</p></section>`));
   if(!["idiomes","amis"].includes(id))V.append(lvlBar());
   const zone=el(`<div class="stack"></div>`);V.append(zone);
-  ({mots:gCross,memory:gMemory,paires:gPairs,craft:gCraft,wordle:gWordle,pendu:gHang,idiomes:gIdiomQuiz,amis:gAmisQuiz})[id](zone);
+  GAME_FN[id](zone);
 };
 
 /* ---------- crossword ---------- */
@@ -21434,8 +21571,8 @@ function buildCross(words){
     if(best.placed.length>=9)break;}
   return best;
 }
-function gCross(zone){
-  const pool=shuffle(gameWords(gameLvl).filter(w=>w.en.length>=3&&w.en.length<=9)).slice(0,16);
+function gCross(zone,given){
+  const pool=given||shuffle(gameWords(gameLvl).filter(w=>w.en.length>=3&&w.en.length<=9)).slice(0,16);
   const cw=buildCross(pool.slice(0,12));const{G,placed,bb}=cw;const H=bb.r1-bb.r0+1,W=bb.c1-bb.c0+1;
   const starts={};let num=0;placed.slice().sort((a,b)=>a.r-b.r||a.c-b.c).forEach(p=>{const k=p.r+","+p.c;if(!starts[k])starts[k]=++num;p.n=starts[k];});
   const board=el(`<div class="cw" style="grid-template-columns:repeat(${W},1fr)"></div>`);
@@ -21638,6 +21775,194 @@ R.amis=function(){
     VRAIS_AMIS.forEach(g=>{const c=el(`<div class="card"><h3>🤝 ${esc(g[0])} <span class="muted small">(${g[2].length})</span></h3><p class="small muted">${esc(g[1])}</p><div class="row">${g[2].map(p=>`<button class="sigchip kg" type="button" data-say="${esc(p[1].split(" /")[0].replace(/\s*\(.*\)/,""))}">${p[0]===p[1]?esc(p[0]):esc(p[0])+" = "+esc(p[1])}<span class="ipa-s">${esc(ipaOf(p[1]))}</span></button>`).join("")}</div></div>`);V.append(c);});
     V.append(el(`<div class="dk warn in"><span class="wi">⚠️</span><div><b>Même mot, autre prononciation !</b> L'accent tonique change souvent de place : français res-tau-RANT → anglais RES-tau-rant, ca-FÉ → (UK) CA-fé, ho-TEL reste ho-TEL. Et -tion se dit « cheune » : information = « in-feu-MÉÏ-cheune ». Écoute chaque mot.</div></div>`));
   }else{gAmisQuiz(V);}
+};
+
+/* ================= NEW GAMES: board game with dice, sorting, missing vowels, talk for a minute, crossword modes ================= */
+GAMES.push(
+ ["plateau","🎲","Jeu de plateau","Lance le dé et avance : « Nomme 3… », verbes irréguliers, quiz, grammaire. Seul·e, à plusieurs ou contre l'ordi."],
+ ["trier","🗂️","Trier en 2 groupes","Healthy ou unhealthy ? Countable ou pas ? For ou since ? Range chaque mot dans la bonne case."],
+ ["voyelles","🔡","Voyelles manquantes","Les voyelles ont disparu ! Retrouve a, e, i, o, u dans les mots et les phrases."],
+ ["parler","🎤","Parle 1 minute","Lance le dé, tire un sujet et parle 1 minute sans t'arrêter. L'IA peut corriger ce que tu as dit."]
+);
+const lvlIdx=l=>l==="Tous"?5:Math.max(0,L6.indexOf(l));
+const upTo=l=>L6.slice(0,lvlIdx(l)+1);
+const nrm=s=>String(s||"").toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z' -]/g,"").replace(/^(a|an|the|to)\s+/,"").replace(/\s+/g," ").trim();
+const okAns=(v,ans)=>ans.split(" / ").some(a=>nrm(a)===nrm(v));
+
+/* ---------- crossword: 3 modes ---------- */
+let cwMode="vocab";
+GAME_FN.mots=function(zone){
+  zone.append(subtabs([["vocab","📖 Vocabulaire"],["opp","↔️ Contraires"],["gram","📘 Grammaire"]],cwMode,k=>{cwMode=k;route();}));
+  if(cwMode==="vocab"){gCross(zone);return;}
+  const lv=gameLvl==="Tous"?L6:[gameLvl];const seen=new Set();let pool=[];
+  if(cwMode==="opp"){lv.forEach(l=>(OPPS[l]||[]).forEach(([a,b])=>{[[a,b],[b,a]].forEach(([w,o])=>{if(/^[a-z]{2,11}$/.test(o)&&!seen.has(o)){seen.add(o);pool.push({en:o,fr:"Contraire de « "+w+" »"});}});}));
+    zone.append(el(`<p class="small muted">Écris le <b>contraire</b> de chaque mot. Les lettres qui se croisent t'aident quand plusieurs réponses sont possibles.</p>`));}
+  else{lv.forEach(l=>(GRAMCW[l]||[]).forEach(([a,q])=>{if(/^[a-z]{2,15}$/.test(a)&&!seen.has(a)){seen.add(a);pool.push({en:a,fr:q});}}));
+    zone.append(el(`<p class="small muted">Complète chaque phrase avec le bon mot (la forme du verbe est entre parenthèses).</p>`));}
+  gCross(zone,shuffle(pool).slice(0,14));
+};
+
+/* ---------- challenges (shared by the board game) ---------- */
+function name3Cats(lvl){return NAME3.filter(c=>lvlIdx(c[0])<=lvlIdx(lvl));}
+function chName3(lvl,box,done){const c=pick(name3Cats(lvl));const set=new Set(c[4].split(" ").concat((c[4].match(/[a-z]+ [a-z]+/g)||[])));
+  const list=c[4];const ok=w=>{w=nrm(w);return !!w&&(set.has(w)||list.includes(" "+w+" ")||list.startsWith(w+" ")||list.endsWith(" "+w)||set.has(w.replace(/es$/,""))||set.has(w.replace(/s$/,""))||set.has(w+"s"));};
+  box.append(el(`<div class="chal-h">${c[1]} Name 3 ${esc(c[2])}<small>Nomme 3 ${esc(c[3])}</small></div>`));
+  const ins=[0,1,2].map(i=>el(`<input class="inp" placeholder="${i+1}." autocomplete="off" autocapitalize="off" spellcheck="false">`));const row=el(`<div class="stack" style="gap:6px"></div>`);ins.forEach(x=>row.append(x));box.append(row);
+  const b=el(`<button class="btn" type="button">Valider</button>`);box.append(b);setTimeout(()=>ins[0].focus(),50);
+  b.addEventListener("click",()=>{const vals=ins.map(x=>nrm(x.value));if(vals.some(v=>!v))return;b.disabled=true;const uniq=new Set(vals).size===3;
+    const res=vals.map(v=>ok(v));ins.forEach((x,i)=>{x.disabled=true;x.classList.add(res[i]?"good":"bad");});
+    const n=res.filter(Boolean).length;const ex=shuffle(c[4].split(" ").filter(w=>w.length>2)).slice(0,6).join(", ");
+    if(n===3&&uniq){box.append(el(`<p class="fb ok">✅ Bravo ! Autres idées : <i>${esc(ex)}</i></p>`));done(true);return;}
+    const p=el(`<div class="stack" style="gap:6px"><p class="fb ko">${!uniq?"Il faut 3 mots différents.":"Je ne reconnais pas "+(3-n)+" mot(s)."} Exemples : <i>${esc(ex)}</i></p></div>`);
+    if(uniq){const s=el(`<button class="btn line sm" type="button" style="align-self:flex-start">✔ Mes mots sont corrects (pas dans la liste)</button>`);const f=el(`<button class="btn ghost sm" type="button" style="align-self:flex-start">Non, je me suis trompé·e</button>`);
+      s.addEventListener("click",()=>{s.remove();f.remove();done(true);});f.addEventListener("click",()=>{s.remove();f.remove();done(false);});p.append(s,f);box.append(p);}
+    else{box.append(p);done(false);}});}
+function verbPool(lvl){const n=[30,55,80,100,100,100][lvlIdx(lvl)];return VERBS.slice(0,n);}
+function chIrr(lvl,box,done){const v=pick(verbPool(lvl));
+  box.append(el(`<div class="chal-h">🔀 to ${esc(v[0])}<small>${esc(v[3])} · donne le prétérit et le participe passé</small></div>`));
+  const a=el(`<input class="inp" placeholder="Past simple (V2)" autocomplete="off" autocapitalize="off" spellcheck="false">`),p=el(`<input class="inp" placeholder="Past participle (V3)" autocomplete="off" autocapitalize="off" spellcheck="false">`);
+  const b=el(`<button class="btn" type="button">Valider</button>`);box.append(a,p,b);setTimeout(()=>a.focus(),50);
+  b.addEventListener("click",()=>{if(!a.value.trim()||!p.value.trim())return;b.disabled=true;const o1=okAns(a.value,v[1]),o2=okAns(p.value,v[2]);a.classList.add(o1?"good":"bad");p.classList.add(o2?"good":"bad");a.disabled=p.disabled=true;
+    box.append(el(`<p class="fb ${o1&&o2?"ok":"ko"}">${o1&&o2?"✅ Parfait !":"❌"} <b>${esc(v[0])} – ${esc(v[1])} – ${esc(v[2])}</b></p>`));speak(v[0]+", "+v[1].replace(" / ",", ")+", "+v[2].replace(" / ",", "));done(o1&&o2);});}
+function chVocab(lvl,box,done){const pool=gameWords(lvl);const w=pick(pool);const opts=shuffle([w].concat(shuffle(pool.filter(x=>x.en!==w.en)).slice(0,3)));const rev=Math.random()<.5;
+  box.append(el(`<div class="chal-h">${rev?"❓ What does it mean?":"❓ Comment dit-on…"}<small>${rev?esc(w.en):"« "+esc(w.fr)+" »"}</small></div>`));if(rev)speak(w.en);
+  const g=el(`<div class="opts"></div>`);opts.forEach(o=>{const b=el(`<button class="opt" type="button">${esc(rev?o.fr:o.en)}</button>`);b.addEventListener("click",()=>{if(g.dataset.done)return;g.dataset.done=1;const ok=o===w;b.classList.add(ok?"good":"bad");$$(".opt",g)[opts.indexOf(w)].classList.add("good");speak(w.en);done(ok);});g.append(b);});box.append(g);}
+function chSpell(lvl,box,done){const w=pick(gameWords(lvl));const img=picFor(w.en,w.th);
+  box.append(el(`<div class="chal-h">🔤 What's this? Spell it.<small>${img?`<span style="font-size:2rem">${img}</span> `:""}${esc(w.fr)} · écoute et écris</small></div>`));
+  const r=el(`<div class="row"><button class="btn line sm" type="button">🔊 Réécouter</button></div>`);r.firstElementChild.addEventListener("click",()=>speak(w.en));box.append(r);speak(w.en);
+  const i=el(`<input class="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Écris le mot">`),b=el(`<button class="btn" type="button">Valider</button>`);box.append(i,b);setTimeout(()=>i.focus(),50);
+  b.addEventListener("click",()=>{if(!i.value.trim())return;b.disabled=true;i.disabled=true;const ok=nrm(i.value)===nrm(w.en);i.classList.add(ok?"good":"bad");box.append(el(`<p class="fb ${ok?"ok":"ko"}">${ok?"✅":"❌"} <b>${esc(w.en.toUpperCase().split("").join(" – "))}</b></p>`));done(ok);});}
+function chOpp(lvl,box,done){const lv=upTo(lvl).slice(-2);const pairs=lv.flatMap(l=>OPPS[l]||[]);const[a,o]=shuffle(pick(pairs).slice());
+  box.append(el(`<div class="chal-h">↔️ What's the opposite of…<small><b>${esc(a)}</b></small></div>`));speak(a);
+  const i=el(`<input class="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Le contraire">`),b=el(`<button class="btn" type="button">Valider</button>`);box.append(i,b);setTimeout(()=>i.focus(),50);
+  b.addEventListener("click",()=>{if(!i.value.trim())return;b.disabled=true;i.disabled=true;const all=pairs.filter(p=>p.includes(a)).map(p=>p[0]===a?p[1]:p[0]);const ok=all.some(x=>nrm(x)===nrm(i.value));i.classList.add(ok?"good":"bad");box.append(el(`<p class="fb ${ok?"ok":"ko"}">${ok?"✅":"❌"} ${esc(a)} ↔ <b>${esc(all.join(" / "))}</b></p>`));speak(all[0]);done(ok);});}
+function gramItems(lvl){const lv=gameLvl==="Tous"?L6:[lvl];const it=[];LESSONS.filter(l=>lv.includes(l.lvl)).forEach(l=>(l.items||[]).forEach(x=>{if(x.t==="mc"&&x.o&&x.o.length<=4)it.push(x);if(x.t==="gap"&&x.a&&x.a.length)it.push(x);}));
+  lv.forEach(l=>(GRAMCW[l]||[]).forEach(([a,q])=>it.push({t:"gap",q,a:[a],e:""})));return it;}
+function chGram(lvl,box,done){const x=pick(gramItems(lvl));
+  box.append(el(`<div class="chal-h">📘 Grammar<small>${esc(x.q)}</small></div>`));
+  if(x.t==="mc"){const g=el(`<div class="opts"></div>`);x.o.forEach((o,k)=>{const b=el(`<button class="opt" type="button">${esc(o)}</button>`);b.addEventListener("click",()=>{if(g.dataset.done)return;g.dataset.done=1;const ok=k===x.a;b.classList.add(ok?"good":"bad");$$(".opt",g)[x.a].classList.add("good");if(x.e)box.append(el(`<p class="fb ${ok?"ok":"ko"}">${esc(x.e)}</p>`));done(ok);});g.append(b);});box.append(g);return;}
+  const i=el(`<input class="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse">`),b=el(`<button class="btn" type="button">Valider</button>`);box.append(i,b);setTimeout(()=>i.focus(),50);
+  b.addEventListener("click",()=>{if(!i.value.trim())return;b.disabled=true;i.disabled=true;const ok=x.a.some(a=>nrm(a)===nrm(i.value));i.classList.add(ok?"good":"bad");box.append(el(`<p class="fb ${ok?"ok":"ko"}">${ok?"✅":"❌"} Réponse : <b>${esc(x.a[0])}</b>${x.e?" · "+esc(x.e):""}</p>`));done(ok);});}
+
+/* ---------- board game ---------- */
+let bdMode="mix",bdPlayers="solo";
+const BD_MODES=[["mix","🎲 Mélange"],["name3","🔢 Nomme 3"],["irr","🔀 Verbes irréguliers"],["quiz","❓ Quiz vocabulaire"],["gram","📘 Grammaire"]];
+const BD_CH={name3:[["name3",chName3,"🔢","Nomme 3"]],irr:[["irr",chIrr,"🔀","Verbe"]],quiz:[["voc",chVocab,"❓","Quiz"],["spell",chSpell,"🔤","Spell it"],["opp",chOpp,"↔️","Contraire"]],gram:[["gram",chGram,"📘","Grammaire"]]};
+BD_CH.mix=[].concat(BD_CH.name3,BD_CH.irr,BD_CH.quiz,BD_CH.gram);
+const BD_SPEC={4:["again","🎲","Rejoue !"],8:["skip","⏸️","Passe ton tour"],12:["fwd","⏩","Avance de 2"],17:["back","⏪","Recule de 3"],21:["skip","⏸️","Passe ton tour"],25:["again","🎲","Rejoue !"],27:["back","⏪","Recule de 3"]};
+const DICE="⚀⚁⚂⚃⚄⚅";
+GAME_FN.plateau=function(zone){
+  zone.append(el(`<p class="small muted">Mode de jeu</p>`),subtabs(BD_MODES,bdMode,k=>{bdMode=k;route();}));
+  zone.append(el(`<p class="small muted">Joueurs</p>`),subtabs([["solo","🙋 Solo"],["2","👭 2 joueurs"],["3","👨‍👩‍👧 3 joueurs"],["bot","🤖 Contre l'ordi"]],bdPlayers,k=>{bdPlayers=k;route();}));
+  const N=30;const lvl=gameLvl;const types=BD_CH[bdMode];
+  const cells=Array.from({length:N},(_,i)=>{if(i===0)return{k:"start",e:"🚩",t:"Départ"};if(i===N-1)return{k:"end",e:"🏆",t:"Arrivée"};if(BD_SPEC[i]){const s=BD_SPEC[i];return{k:s[0],e:s[1],t:s[2]};}const c=types[i%types.length];return{k:"ch",ch:c,e:c[2],t:c[3]};});
+  const P=[{n:"Toi",e:"🔴"}];if(bdPlayers==="2"||bdPlayers==="3")P[0].n="Joueur 1",P.push({n:"Joueur 2",e:"🔵"});if(bdPlayers==="3")P.push({n:"Joueur 3",e:"🟢"});if(bdPlayers==="bot")P.push({n:"Claude 🤖",e:"🟣",bot:true});
+  P.forEach(p=>{p.pos=0;p.skip=false;p.pts=0;});let turn=0,busy=false,moves=0,over=false;
+  const board=el(`<div class="bd"></div>`);const COLS=6;
+  const order=[];for(let r=0;r<N/COLS;r++)for(let c=0;c<COLS;c++)order.push(r*COLS+(r%2?COLS-1-c:c));
+  const nodes=[];order.forEach(i=>{const c=cells[i];const n=el(`<div class="bdc k-${c.k}"><span class="bdn">${i===0||i===N-1?"":i}</span><span class="bde">${c.e}</span><span class="bdt">${esc(c.t)}</span><span class="bdp"></span></div>`);nodes[i]=n;board.append(n);});
+  const draw=()=>{nodes.forEach(n=>n.querySelector(".bdp").textContent="");P.forEach(p=>{nodes[p.pos].querySelector(".bdp").textContent+=p.e;});};
+  const score=el(`<div class="row bdsc"></div>`);const drawScore=()=>{score.innerHTML=P.map((p,i)=>`<span class="tag ${i===turn&&!over?"done":""}">${p.e} ${esc(p.n)} · case ${p.pos} · ⭐ ${p.pts}</span>`).join("");};
+  const dice=el(`<div class="dice" aria-live="polite">🎲</div>`);const rollB=el(`<button class="btn" type="button">🎲 Lancer le dé</button>`);const msg=el(`<p class="bdmsg"></p>`);const chal=el(`<div class="card chal" hidden></div>`);
+  const ctrl=el(`<div class="bdctl"></div>`);ctrl.append(dice,el(`<div class="stack" style="gap:6px;flex:1"></div>`));ctrl.lastElementChild.append(msg,rollB);
+  zone.append(el(`<div class="card bdwrap"></div>`));zone.lastElementChild.append(board);zone.append(score,ctrl,chal);
+  const say=t=>{msg.innerHTML=t;};
+  const next=(again)=>{if(over)return;if(!again)turn=(turn+1)%P.length;busy=false;drawScore();const p=P[turn];
+    if(p.skip){p.skip=false;say(`${p.e} <b>${esc(p.n)}</b> passe son tour.`);busy=true;setTimeout(()=>next(false),1100);return;}
+    say(`${p.e} À <b>${esc(p.n)}</b> de jouer !`);rollB.disabled=false;if(p.bot){rollB.disabled=true;setTimeout(roll,900);}};
+  const finish=p=>{over=true;rollB.disabled=true;drawScore();say(`🏆 <b>${esc(p.n)}</b> a gagné ! ${P.length===1?"En "+moves+" lancers, avec ⭐ "+p.pts+" bonnes réponses.":""}`);confetti();gameDone("plateau");
+    const b=el(`<button class="btn" type="button">Rejouer</button>`);b.addEventListener("click",()=>route());chal.hidden=false;chal.innerHTML="";chal.append(b);};
+  const moveTo=(p,to,cb)=>{to=Math.max(0,Math.min(N-1,to));const step=()=>{if(p.pos===to){cb();return;}p.pos+=p.pos<to?1:-1;draw();setTimeout(step,170);};step();};
+  const land=p=>{const c=cells[p.pos];drawScore();
+    if(p.pos===N-1){finish(p);return;}
+    if(c.k==="again"){say(`🎲 ${esc(p.n)} rejoue !`);setTimeout(()=>next(true),900);return;}
+    if(c.k==="skip"){p.skip=true;say(`⏸️ ${esc(p.n)} passera son prochain tour.`);setTimeout(()=>next(false),1100);return;}
+    if(c.k==="fwd"){say(`⏩ ${esc(p.n)} avance de 2 cases !`);setTimeout(()=>moveTo(p,p.pos+2,()=>land(p)),700);return;}
+    if(c.k==="back"){say(`⏪ ${esc(p.n)} recule de 3 cases…`);setTimeout(()=>moveTo(p,p.pos-3,()=>land(p)),700);return;}
+    if(c.k==="ch"){const from=p.lastPos;
+      if(p.bot){const ok=Math.random()<.7;say(`${p.e} Claude répond à « ${esc(c.t)} »… ${ok?"✅ bonne réponse !":"❌ raté, il recule."}`);if(ok)p.pts++;setTimeout(()=>{if(ok)next(false);else moveTo(p,from,()=>next(false));},1300);return;}
+      chal.hidden=false;chal.innerHTML="";chal.append(el(`<span class="kicker">${p.e} ${esc(p.n)} · case ${p.pos}</span>`));
+      c.ch[1](lvl==="Tous"?pick(L6):lvl,chal,ok=>{if(ok)p.pts++;const b=el(`<button class="btn" type="button" style="align-self:flex-start">${ok?"Continuer →":"❌ Retour à la case "+from+" →"}</button>`);
+        b.addEventListener("click",()=>{chal.hidden=true;chal.innerHTML="";if(ok)next(false);else moveTo(p,from,()=>next(false));});chal.append(b);b.scrollIntoView({block:"nearest",behavior:"smooth"});});
+      chal.scrollIntoView({block:"nearest",behavior:"smooth"});return;}
+    next(false);};
+  const roll=()=>{if(busy||over)return;busy=true;rollB.disabled=true;const p=P[turn];moves+=p.bot?0:1;const v=1+Math.floor(Math.random()*6);let k=0;dice.classList.add("rolling");
+    const t=setInterval(()=>{dice.textContent=DICE[Math.floor(Math.random()*6)];if(++k>8){clearInterval(t);dice.classList.remove("rolling");dice.textContent=DICE[v-1];say(`${p.e} ${esc(p.n)} fait <b>${v}</b> !`);p.lastPos=p.pos;moveTo(p,p.pos+v,()=>land(p));}},80);};
+  rollB.addEventListener("click",roll);draw();drawScore();next(true);
+  zone.append(el(`<details class="explain"><summary><b>📜 Règles</b></summary><div><p>Lance le dé et avance. Sur une case défi, réponds : si c'est juste tu marques ⭐ et tu restes, sinon tu retournes là où tu étais. Cases spéciales : 🎲 rejoue · ⏸️ passe ton tour · ⏩ avance de 2 · ⏪ recule de 3. Le premier à l'🏆 gagne. À plusieurs, on se passe l'iPad.</p></div></details>`));
+};
+
+/* ---------- sorting ---------- */
+let srtI=0;
+GAME_FN.trier=function(zone){
+  const lv=gameLvl==="Tous"?L6:[gameLvl];const banks=lv.flatMap(l=>(SORTS[l]||[]).map(b=>b.concat([l])));if(srtI>=banks.length)srtI=0;
+  zone.append(subtabs(banks.map((b,i)=>[String(i),b[0]+(gameLvl==="Tous"?" · "+b[3]:"")]),String(srtI),k=>{srtI=+k;route();}));
+  const[t,labs,items]=banks[srtI];const words=shuffle(items.slice()).slice(0,14);let sel=null;
+  zone.append(el(`<p class="small muted">Touche un mot (il est prononcé), puis touche la bonne case. Tu peux le reprendre en le touchant dans la case.</p>`));
+  const pool=el(`<div class="chips srtpool"></div>`);const bins=labs.map((l,i)=>el(`<div class="srtbin k${i}"><b>${esc(l)}</b><div class="chips"></div></div>`));
+  const binRow=el(`<div class="srtbins"></div>`);bins.forEach(b=>binRow.append(b));
+  words.forEach(w=>{const c=el(`<button class="wchip" type="button">${esc(w[0])}</button>`);c._w=w;c.addEventListener("click",()=>{if(zone.dataset.checked)return;speak(w[0]);
+    if(c.parentElement!==pool){pool.append(c);c.classList.remove("on");sel=null;return;}$$(".wchip.on",zone).forEach(x=>x.classList.remove("on"));sel=c;c.classList.add("on");});pool.append(c);});
+  bins.forEach((b,i)=>b.addEventListener("click",e=>{if(e.target.closest(".wchip")||!sel||zone.dataset.checked)return;sel.classList.remove("on");b.querySelector(".chips").append(sel);sel=null;}));
+  zone.append(pool,binRow);
+  const fb=el(`<div class="stack" style="gap:6px"></div>`);const bar=el(`<div class="row"><button class="btn" type="button">Vérifier</button><button class="btn ghost" type="button">Nouvelle partie</button></div>`);
+  const[bc,bn]=$$("button",bar);bn.addEventListener("click",()=>{delete zone.dataset.checked;route();});
+  bc.addEventListener("click",()=>{if(pool.children.length){fb.innerHTML=`<p class="fb ko">Range d'abord tous les mots (${pool.children.length} restant${pool.children.length>1?"s":""}).</p>`;return;}
+    zone.dataset.checked=1;let ok=0;const errs=[];bins.forEach((b,i)=>$$(".wchip",b).forEach(c=>{const g=c._w[1]===i;if(g)ok++;else errs.push(c._w);c.classList.add(g?"good":"bad");}));
+    fb.innerHTML=`<p class="fb ${ok===words.length?"ok":"ko"}"><b>${ok} / ${words.length}</b> ${ok===words.length?"🎉 Parfait !":""}</p>`+errs.map(w=>`<p class="small">❌ <b>${esc(w[0])}</b> → ${esc(labs[w[1]])}${w[2]?" · "+esc(w[2]):""}</p>`).join("");
+    if(ok===words.length){confetti();}gameDone("trier");bc.disabled=true;});
+  zone.append(bar,fb);delete zone.dataset.checked;
+};
+
+/* ---------- missing vowels ---------- */
+let vwMode="mots",vwTh="Niveau";
+GAME_FN.voyelles=function(zone){
+  zone.append(subtabs([["mots","🔤 Mots"],["phrases","📝 Phrases"]],vwMode,k=>{vwMode=k;route();}));
+  let items=[];
+  if(vwMode==="mots"){zone.append(subtabs([["Niveau","⭐ Mots de mon niveau"]].concat(Object.keys(VOWTH).map(k=>[k,k])),vwTh,k=>{vwTh=k;route();}));
+    if(vwTh==="Niveau")items=shuffle(gameWords(gameLvl).filter(w=>/[aeiou]/.test(w.en))).slice(0,10).map(w=>({en:w.en,fr:w.fr}));
+    else{const raw=VOWTH[vwTh];const multi=raw.match(/good morning|good afternoon|good evening|see you later|how are you/g)||[];let rest=raw;multi.forEach(m=>rest=rest.replace(m,""));items=shuffle(multi.concat(rest.split(" ").filter(Boolean))).slice(0,10).map(en=>({en,fr:""}));}}
+  else{const lv=gameLvl==="Tous"?pick(L6):gameLvl;
+    if(lv==="A1"){items=ROUTINE.map(en=>({en,fr:""}));const st=Math.floor(Math.random()*Math.max(1,items.length-6));items=items.slice(st,st+6);zone.append(el(`<p class="small muted">📖 Kate's daily routine (présent simple)</p>`));}
+    else items=shuffle(SENTS().filter(s=>s.lvl===lv&&s.en.length<=70)).slice(0,6).map(s=>({en:s.en,fr:s.fr}));}
+  zone.append(el(`<p class="small muted">Remplace chaque _ par la bonne voyelle : <b>a e i o u</b>.</p>`));
+  const list=el(`<div class="stack"></div>`);const all=[];
+  items.forEach((it,n)=>{const line=el(`<div class="card vwl"><span class="small muted">${n+1}.${it.fr?" "+esc(it.fr):""}</span><div class="vww"></div><div class="vwa" hidden></div></div>`);const w=line.querySelector(".vww");
+    it.en.split(" ").forEach(wd=>{const ws=el(`<span class="vwword"></span>`);wd.split("").forEach(ch=>{if(/[aeiouAEIOU]/.test(ch)){const i=el(`<input class="vwi" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="voyelle">`);i._c=ch.toLowerCase();all.push(i);ws.append(i);}else ws.append(el(`<span class="vwc">${esc(ch)}</span>`));});w.append(ws);});
+    line._it=it;list.append(line);});
+  all.forEach((i,k)=>{i.addEventListener("input",()=>{i.value=i.value.slice(-1).toLowerCase();i.classList.remove("good","bad");if(i.value&&all[k+1])all[k+1].focus();});
+    i.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!i.value&&all[k-1]){all[k-1].focus();e.preventDefault();}});});
+  zone.append(list);
+  const fb=el(`<p class="small"></p>`);const bar=el(`<div class="row"><button class="btn" type="button">Vérifier</button><button class="btn line" type="button">Solution</button><button class="btn ghost" type="button">Nouvelle série</button></div>`);
+  const[bc,bs,bn]=$$("button",bar);bn.addEventListener("click",()=>route());
+  const reveal=()=>$$(".vwl",list).forEach(l=>{const a=l.querySelector(".vwa");if(a.hidden){a.hidden=false;a.innerHTML=`<div class="exline"><div><b>${esc(l._it.en)}</b></div>${pb(l._it.en)}</div>`;}});
+  bc.addEventListener("click",()=>{let ok=0;all.forEach(i=>{const g=i.value===i._c;if(g)ok++;i.classList.toggle("good",g);i.classList.toggle("bad",!!i.value&&!g);});fb.textContent=`${ok} / ${all.length} voyelles correctes.`;if(ok===all.length){fb.textContent+=" 🎉 Parfait !";confetti();gameDone("voyelles");reveal();}});
+  bs.addEventListener("click",()=>{all.forEach(i=>{if(i.value!==i._c){i.value=i._c;i.classList.add("bad");}});reveal();});
+  zone.append(bar,fb);
+};
+
+/* ---------- talk for a minute ---------- */
+GAME_FN.parler=function(zone){
+  const lv=gameLvl==="Tous"?pick(L6):gameLvl;const topics=TALK[lv];let topic=null,rec=null,tm=null,text="";
+  const card=el(`<div class="card talkc"><div class="dice big">🎲</div><b class="talkt">Lance le dé pour tirer un sujet.</b></div>`);const d=card.querySelector(".dice"),tt=card.querySelector(".talkt");
+  const rollB=el(`<button class="btn" type="button">🎲 Tirer un sujet</button>`);
+  const help=el(`<div class="card tint-lilac"><span class="hand">pour t'aider ✦</span><div class="chips">${TALK_HELP[lv].map(h=>`<span class="tag">${esc(h)}</span>`).join("")}</div></div>`);
+  const timer=el(`<div class="talktm">1:00</div>`);const go=el(`<button class="btn butter" type="button" disabled>▶️ Je parle 1 minute</button>`);
+  const out=el(`<textarea class="inp" rows="4" placeholder="Ce que tu dis s'écrit ici (si le micro marche). Sinon, écris ce que tu as dit, puis demande une correction."></textarea>`);
+  const after=el(`<div class="stack"></div>`);
+  zone.append(card,rollB,help,el(`<div class="row" style="align-items:center"></div>`),out,after);zone.children[zone.children.length-3].append(go,timer);
+  rollB.addEventListener("click",()=>{let k=0;d.classList.add("rolling");const t=setInterval(()=>{d.textContent=DICE[Math.floor(Math.random()*6)];tt.textContent=pick(topics);if(++k>10){clearInterval(t);d.classList.remove("rolling");topic=pick(topics);tt.textContent=topic;speak(topic);go.disabled=false;}},90);});
+  const stop=()=>{clearInterval(tm);tm=null;try{rec&&rec.stop();}catch(e){}rec=null;go.textContent="▶️ Recommencer";
+    const n=out.value.trim().split(/\s+/).filter(Boolean).length;after.innerHTML="";after.append(el(`<p class="fb ok">⏱️ Temps écoulé ! ${n?`Tu as dit environ <b>${n} mots</b>. ${n>=lvlIdx(lv)*20+40?"Super fluidité !":"Essaie d'en dire un peu plus la prochaine fois."}`:""}</p>`));
+    const ai=el(`<button class="btn line" type="button">✨ Corrige-moi (IA)</button>`);after.append(ai);gameDone("parler");
+    ai.addEventListener("click",async()=>{const txt=out.value.trim();if(txt.split(/\s+/).length<5){after.append(el(`<p class="notice">Écris au moins une phrase ou deux.</p>`));return;}
+      const sample=await getSample();if(!sample){after.insertAdjacentHTML("beforeend",NOAI);return;}ai.disabled=true;ai.textContent="…";
+      try{const r=await sample.json(`A French learner of English (CEFR ${lv}) spoke for one minute about: "${topic}". Transcript (may contain speech-recognition errors): """${txt.slice(0,2500)}""". Reply ONLY with JSON {"score":1-10,"praise":"one encouraging sentence in French","fixes":[{"wrong":"...","right":"...","why":"short reason in French"}],"better":"an improved natural version of what they said, same level ${lv}, max 120 words","tips":["2 short tips in French"]}. Max 6 fixes, ignore punctuation.`,{cache:false,modelTier:"quick"});
+        after.append(el(`<div class="card"><h3>✨ Note : ${esc(String(r.score||"?"))}/10</h3><p>${esc(r.praise||"")}</p>${(r.fixes||[]).map(f=>`<p class="small">❌ <s>${esc(f.wrong)}</s> → ✅ <b>${esc(f.right)}</b> <span class="muted">${esc(f.why||"")}</span></p>`).join("")}<h3>📝 Version améliorée</h3><div class="exline"><div><span>${esc(r.better||"")}</span></div>${pb(r.better||"")}</div>${(r.tips||[]).map(t=>`<p class="small">💡 ${esc(t)}</p>`).join("")}</div>`));}
+      catch(e){after.append(el(`<p class="notice">${esc(aiErr(e)||"Indisponible.")}</p>`));}ai.remove();});};
+  go.addEventListener("click",()=>{if(tm){stop();return;}if(!topic)return;out.value="";text="";after.innerHTML="";let s=60;timer.textContent="1:00";go.textContent="⏹️ Stop";
+    tm=setInterval(()=>{s--;timer.textContent="0:"+String(s).padStart(2,"0");timer.classList.toggle("hot",s<=10);if(s<=0)stop();},1000);
+    const startRec=()=>{text=out.value;rec=listen(t=>{out.value=(text+" "+t).trim();},()=>{if(tm)startRec();},()=>{after.innerHTML=`<p class="small muted">🎙️ Micro indisponible ici : parle à voix haute, puis écris en dessous ce que tu as dit.</p>`;});};startRec();});
 };
 
 /* ================= boot ================= */
