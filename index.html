@@ -10344,6 +10344,7 @@ I'm easy.=Ça m'est égal.
 I'm all ears.=Je suis tout ouïe.
 my go-to=mon préféré, mon incontournable
 I got you covered.=J'ai ce qu'il te faut.
+I have faith in this one.=J'y crois vraiment, je le sens bien (aussi : I've got faith in this one).
 # Photographie et vidéo | q
 a camera=un appareil photo, une caméra
 a lens=un objectif
@@ -18295,6 +18296,9 @@ const VIDEO_SERIES=[
 {lvl:"B1",name:"Modern Family",type:"Série (US)",why:"Vie de famille, beaucoup d'expressions courantes. Épisodes courts de 20 minutes.",url:yt("Modern Family best scenes")},
 {lvl:"B1–B2",name:"Ted Lasso",type:"Série (accents US + UK)",why:"Idéal pour comparer l'accent américain et britannique dans la même série.",url:yt("Ted Lasso best scenes")},
 {lvl:"B2–C1",name:"The Crown / Sherlock",type:"Séries (UK)",why:"Anglais britannique soutenu, vocabulaire riche. Pour aller vers le C1.",url:yt("Sherlock BBC best scenes")}];
+const VT_LVL=["A1","A1","A1","A1","A2","A2","A2","A1","A2","B1"];
+let capLvl="Tous";
+const lvlIn=(range,l)=>{const p=String(range).split(/[–-]/).map(x=>LEVELS.indexOf(x.trim())).filter(i=>i>=0);if(!p.length)return false;const i=LEVELS.indexOf(l);return i>=Math.min(...p)&&i<=Math.max(...p);};
 const VIDEO_TOPICS=[
 ["Présent simple et présent continu","present simple vs present continuous"],["Les adjectifs possessifs","possessive adjectives my your his her"],["In, on, at (temps)","prepositions of time in on at"],["In, on, at (lieux)","prepositions of place in on at"],["Can, must, have to, should","modal verbs must have to should"],["Prétérit et present perfect","past simple vs present perfect"],["Some, any, much, many","some any much many"],["Do / does : questions","do does questions present simple"],["Les verbes irréguliers","irregular verbs past simple"],["Used to","used to be used to get used to"]];
 
@@ -22393,7 +22397,7 @@ const PHR=[];
     ["🙏 Politesse, vœux et au revoir",/take care|nice day|good luck|get well|bless you|enjoy your meal|same to you|good night|good one|be careful|watch out|don't worry|excuse me|apologies|appreciate|thank|that's ok|sorry/i],
     ["💬 Prendre des nouvelles",/how are (you|things)|been up to|been doing|been a while|long time|pretty good|what about you|going well|nice talking|see you|lately|how was|what was it like|good time|any problems|what did you do|fine, thanks|how's it going|what's up|not much|doing well|not bad|too bad|how have you been|everything ok|are you ok|what happened|what's wrong|the matter|going on/i],
     ["👋 Se présenter et faire connaissance",/where are you from|which (city|country)|where do you live|born|your job|for a living|for work|what do you do\??$|what do you study|your name|how old|nice to meet|add you on|married|children|kids|birthday|favourite|been here|home country/i],
-    ["🗣️ Donner son avis et réagir",/i think|i don't mind|don't care|up to you|doesn't matter|never mind|sounds good|prefer|depends|positive|agree|what a pity|of course|no problem|let me think|hold on|be right back|here you go|welcome|kidding|no way|believe|shame|exciting|good for you|amazing|poor you|relief|makes? sense|fair enough|i see|i hope|bummer|my day|rock|nailed|count me in|up for it|all ears|piece of cake|worth it|game changer|cup of tea|on the fence|bell|don't know|no idea|big deal|deal breaker|sweet spot|resonates|i'm easy|covered|how come|why not|are you sure|used to it|point|slipped my mind/i],
+    ["🗣️ Donner son avis et réagir",/i think|i don't mind|don't care|up to you|doesn't matter|never mind|sounds good|prefer|depends|positive|agree|what a pity|of course|no problem|let me think|hold on|be right back|here you go|welcome|kidding|no way|believe|shame|exciting|good for you|amazing|poor you|relief|makes? sense|fair enough|i see|i hope|bummer|my day|rock|nailed|faith in|count me in|up for it|all ears|piece of cake|worth it|game changer|cup of tea|on the fence|bell|don't know|no idea|big deal|deal breaker|sweet spot|resonates|i'm easy|covered|how come|why not|are you sure|used to it|point|slipped my mind/i],
     ["🙋 Demander et proposer",/^(can|could|may) (i|you|we)|do you want|would you|let's|shall we|need to ask|have a minute|do you mind|why don't we|how about|let me know|text me|call me|keep in touch|wait for me|hurry up|after you|go ahead|make yourself|wait a minute|just a second|in a minute|on my way|running late|i'm late/i],
     ["🩺 Santé",/doctor|sick|hurt|pain|ache|fever|cough|medicine|hospital|dizzy|feel (well|unwell|better|sick)|don't feel well/i],
     ["🛍️ Achats, restaurant et café",/how much|price|cost|bill|menu|size|\bpay|card|cash|take it|order|eat together|coffee|receipt|try (it )?on|wi-fi|password/i],
@@ -22408,6 +22412,19 @@ const PHR=[];
     ["🏠 Routine et quotidien",/wake up|dressed|errands|laundry|dishes|tidy|overslept|getting ready|get ready|school|stay at home|time off|on my plate|running out|free on|hungry|thirsty|starving|freezing|boiling|exhausted|ready|breakfast|lunch|dinner|\beat|cook|clean|sleep|bed|shower|work|kitchen|meeting|reading|studying|learning|needs water|live here|help|wanted to|looked everywhere|couldn't find|made coffee|realize/i]];
   const cls=en=>{for(const r of R)if(r[1].test(en))return r[0];return"💬 Conversation de tous les jours";};
   THEMES.forEach(t=>{const keep=[];t.words.forEach(w=>{if(isS(w.en,t)){let en=w.en.trim();en=en.charAt(0).toUpperCase()+en.slice(1);PHR.push({en,fr:w.fr,lvl:t.lvl,cat:t.cat,src:t.name,th:GEN.test(t.name)?cls(en):t.name});}else keep.push(w);});t.words=keep;});const cnt={};PHR.forEach(p=>cnt[p.th]=(cnt[p.th]||0)+1);PHR.forEach(p=>{if(cnt[p.th]<4)p.th=cls(p.en);});})();
+/* vocabulary: no duplicates — a word appears twice only when the meaning differs */
+(function(){const WK=w=>String(w||"").toLowerCase().replace(/\(.*?\)/g,"").trim().replace(/^(a|an|the|to|some)\s+/,"").replace(/[.!?…]+$/,"").trim();
+  const STOP=new Set(["faire","quelque","chose","quelqu'un","avoir","être","etre","pour","dans","avec","très","plus","sans","sous","entre","bien","tout","toute","tous","une","des","les","aux"]);
+  const nm=s=>s.trim().toLowerCase().replace(/-/g," ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·\w+/g,"").replace(/[«»"“”]/g,"").replace(/[.…!?]+$/,"").replace(/^(une|un|les|le|la|des|du|de la|de)\s+/,"").replace(/^(l|s|d)['’]\s*/,"").replace(/^(une|un|les|le|la|des|du)\s+/,"").trim();
+  const senses=fr=>String(fr).replace(/\(.*?\)/g," ").split(/[,;\/]| ou /).map(nm).filter(Boolean);
+  const toks=s=>s.split(/[\s'’-]+/).filter(t=>t.length>=4&&!STOP.has(t)).map(t=>t.replace(/[sx]$/,""));
+  const same=(a,b)=>a===b||a.replace(/[sx]$/,"")===b.replace(/[sx]$/,"")||(a.length>3&&b.length>3&&(a.startsWith(b+" ")||b.startsWith(a+" ")))||toks(a).some(t=>toks(b).includes(t));
+  const kept=new Map();
+  THEMES.forEach(t=>{t.words=t.words.filter(w=>{const k=WK(w.en);if(!k)return true;const ss=senses(w.fr);const prev=kept.get(k)||[];
+    const hit=prev.find(p=>p.ss.some(a=>ss.some(b=>same(a,b))));
+    if(hit){const extra=String(w.fr).split(/[,;]/).map(x=>x.trim()).filter((x,i)=>{const n=senses(x);return n.length&&!n.some(b=>prev.some(p=>p.ss.some(a=>same(a,b))));});
+      if(extra.length){hit.w.fr+=", "+extra.join(", ");hit.ss.push(...extra.flatMap(senses));}return false;}
+    prev.push({w,ss});kept.set(k,prev);return true;});});})();
 const ALLWORDS=THEMES.flatMap(t=>t.words);
 const THLVL={};THEMES.forEach(t=>THLVL[t.name]=t.lvl);
 
@@ -22563,9 +22580,9 @@ function nextLesson(){const start=LEVELS.indexOf(S.level);const pool=LESSONS.fil
 /* ================= HOME ================= */
 R.home=function(){
   const st=stats();const d=S.days[today()]||{};const nl=nextLesson();
-  const goals=[["ex",10,"Exercices","10 réponses","exos"],["cards",15,"Vocabulaire","15 cartes","revisions"],["pod",1,"Écoute","1 podcast ou chanson","ecoute"],["pron",5,"Prononciation","5 phrases notées","oral"],["chat",4,"Conversation IA","4 messages","ia"],["shadow",1,"Shadowing","1 dialogue","shadowing"]];
+  const goals=[["ex",10,"Exercices","10 réponses","exos"],["cards",15,"Vocabulaire","15 cartes","revisions"],["pod",1,"Écoute","1 podcast ou chanson","ecoute"],["shadow",1,"Shadowing","1 dialogue","shadowing"]];
   const done=goals.filter(g=>(d[g[0]]||0)>=g[1]).length;
-  V.append(el(`<section class="stack"><span class="hand">your daily English ✦</span><h1 class="view-title">Hello! Ready to <em>speak</em>?</h1><p class="lead">Ton parcours complet de A1 à C1, jusqu'au TOEIC. 30 minutes par jour suffisent ; les jours où tu as plus de temps, ajoute un podcast, une chanson et une conversation avec l'IA.</p></section>`));
+  V.append(el(`<section class="stack"><span class="hand">your daily English ✦</span><h1 class="view-title">Hello! Ready to <em>speak</em>?</h1><p class="lead">Ton parcours complet de A1 à C1, jusqu'au TOEIC. 30 minutes par jour suffisent ; les jours où tu as plus de temps, ajoute un podcast ou une chanson.</p></section>`));
   const lvl=el(`<div class="row"><span class="small muted">Mon niveau actuel :</span></div>`);lvl.append(subtabs(LEVELS.map(l=>[l,l]),S.level,k=>{S.level=k;save();route();}));V.append(lvl);
   V.append(el(`<div class="grid">
     <button class="card tint-cobalt" type="button" data-go="lecon-${nl.id}" style="text-align:left;border:0"><span class="kicker">Continuer · ${nl.lvl}</span><h2>${esc(nl.title)}</h2><p class="small muted">${esc(nl.goal)}</p><span class="btn" style="align-self:flex-start">Ouvrir la leçon →</span></button>
@@ -22587,7 +22604,6 @@ R.home=function(){
     <div class="card"><div class="stat"><b>${st.words}<small class="muted" style="font-size:1rem"> / ${ALLWORDS.length.toLocaleString("fr-FR")}</small></b><span>mots bien retenus · 🏆 ${st.mastered} maîtrisés</span></div></div>
     <div class="card"><div class="stat"><b>${st.verbs}<small class="muted" style="font-size:1rem"> / ${VERBS.length}</small></b><span>verbes irréguliers maîtrisés</span></div></div>
     <div class="card"><div class="stat"><b>${S.mix.n}</b><span>exercices mélangés faits (${S.mix.n?Math.round(S.mix.ok/S.mix.n*100):0} % justes)</span></div></div>
-    <div class="card"><div class="stat"><b>${st.pron==null?"–":st.pron+" %"}</b><span>prononciation moyenne</span></div></div>
     <div class="card"><div class="stat"><b>${S.toeic.best?S.toeic.best:"–"}</b><span>meilleur score TOEIC blanc (estimé)</span></div></div>
   </div></section>`));
   const lv=el(`<div class="card"><h3>Ton parcours A1 → C2</h3></div>`);
@@ -23932,9 +23948,11 @@ function SENTS(){if(_SENTS)return _SENTS;const seen=new Set(),out=[];
     ((typeof DEEP!=="undefined"&&DEEP[l.id])||[]).forEach(b=>{[b.ex,b.k==="ex"?b.list:null,b.a&&b.a.ex,b.b&&b.b.ex].forEach(a=>(a||[]).forEach(x=>add(x[0],x[1],l.title,l.lvl,l.id)));});});
   return _SENTS=out;}
 const sKey=s=>s.en;
-let phSrc="all",phLvl="Tous",phMode="cartes",phTh="all";
+let phSrc="all",phLvl="Tous",phMode="cartes",phTh="all",phQ="";
+const phNorm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘]/g,"'").replace(/\s+/g," ").trim();
 function phThemes(){const m=new Map();SENTS().forEach(s=>m.set(s.th,(m.get(s.th)||0)+1));return [...m.entries()].sort((a,b)=>a[0].startsWith("📘")-b[0].startsWith("📘")||a[0].replace(/^\P{L}+/u,"").localeCompare(b[0].replace(/^\P{L}+/u,""),"fr"));}
 function sentPool(lid){let p=SENTS();if(lid)return p.filter(s=>s.lid===lid);
+  if(phQ){const q=phNorm(phQ);return p.filter(s=>phNorm(s.en+" | "+s.fr).includes(q));}
   if(phSrc==="lecons")p=p.filter(s=>s.lid);if(phSrc==="utiles")p=p.filter(s=>!s.lid);
   if(phLvl!=="Tous")p=p.filter(s=>s.lvl===phLvl);if(phTh!=="all")p=p.filter(s=>s.th===phTh);return p;}
 function sentItem(s,mode,pool){
@@ -23949,12 +23967,18 @@ R.phrases=function(lid){
   V.append(head("Mots",L?`Phrases : <em>${esc(L.title)}</em>`:`Les <em>phrases</em>`,"Apprends des phrases entières : c'est comme ça qu'on retient le mieux. Flashcards, QCM, remettre dans l'ordre, écoute et dictée."));
   if(L)V.append(back("lecon-"+lid,"Retour à la leçon"));else V.append(wordsNav("phrases"));
   if(!L){const f=el(`<div class="stack"></div>`);f.append(subtabs([["all","Toutes"],["lecons","Phrases des leçons"],["utiles","Phrases utiles"]],phSrc,k=>{phSrc=k;route();}));f.append(subtabs([["Tous","Tous niveaux"]].concat(LEVELS.map(l=>[l,l])),phLvl,k=>{phLvl=k;route();}));V.append(f);}
-  if(!L){const sel=el(`<select class="inp" aria-label="Thème des phrases"><option value="all">📚 Tous les thèmes (${SENTS().length})</option>${phThemes().map(([t,n])=>`<option value="${esc(t)}" ${t===phTh?"selected":""}>${esc(t)} (${n})</option>`).join("")}</select>`);sel.addEventListener("change",()=>{phTh=sel.value;route();});V.append(el(`<p class="small muted" style="margin-bottom:-6px">Thème</p>`),sel);}
+  if(!L){const sel=el(`<select class="inp" aria-label="Thème des phrases"><option value="all">📚 Tous les thèmes (${SENTS().length})</option>${phThemes().map(([t,n])=>`<option value="${esc(t)}" ${t===phTh?"selected":""}>${esc(t)} (${n})</option>`).join("")}</select>`);sel.addEventListener("change",()=>{phTh=sel.value;route();});V.append(el(`<p class="small muted" style="margin-bottom:-6px">Thème</p>`),sel);
+    const sr=el(`<div class="row" style="flex-wrap:nowrap"><input id="phq" class="inp" type="search" placeholder="🔍 Chercher une phrase (anglais ou français)…" aria-label="Chercher une phrase" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn line sm" type="button" ${phQ?"":"hidden"}>Effacer</button></div>`);
+    const qi=sr.querySelector("input"),qx=sr.querySelector("button");qi.value=phQ;let qt=null;
+    qi.addEventListener("input",()=>{clearTimeout(qt);qt=setTimeout(()=>{phQ=qi.value.trim();const y=window.scrollY;route();window.scrollTo(0,y);const n=document.getElementById("phq");if(n){n.focus();try{n.setSelectionRange(n.value.length,n.value.length);}catch(e){}}},280);});
+    qx.addEventListener("click",()=>{phQ="";route();});V.append(sr);}
   V.append(subtabs([["liste","📋 Liste"],["cartes","🃏 Flashcards"],["qcm","📝 QCM"],["ordre","🧩 Remettre dans l'ordre"],["ecoute","🎧 Écoute"],["dictee","✍️ Dictée"]],phMode,k=>{phMode=k;route();}));
   const pool=sentPool(lid);const done=pool.filter(s=>mDone(sKey(s))).length;
   V.append(el(`<p class="small muted">${pool.length} phrases · 🏆 ${done} maîtrisées (${mGoal()} bonnes réponses en QCM, en ordre/écrit et à l'écoute).</p>`));
-  if(phMode==="liste"){const g=new Map();pool.forEach(s=>{if(!g.has(s.th))g.set(s.th,[]);g.get(s.th).push(s);});
-    [...g.entries()].sort((a,b)=>a[0].startsWith("📘")-b[0].startsWith("📘")||a[0].localeCompare(b[0],"fr")).forEach(([th,arr])=>{const c=el(`<details class="card" ${g.size<4?"open":""}><summary><b>${esc(th)}</b> <span class="small muted">· ${arr.length} phrases</span></summary></details>`);
+  if(phQ&&!L&&!pool.length){V.append(el(`<p class="notice">Aucune phrase ne contient « ${esc(phQ)} ». Essaie un seul mot (en anglais ou en français).</p>`));return;}
+  if(phQ&&!L)V.append(el(`<p class="small muted">🔍 Recherche dans toutes les phrases (tous niveaux et thèmes) : ${pool.length} résultat${pool.length>1?"s":""}.</p>`));
+  if(phMode==="liste"||(phQ&&!L)){const g=new Map();pool.forEach(s=>{if(!g.has(s.th))g.set(s.th,[]);g.get(s.th).push(s);});
+    [...g.entries()].sort((a,b)=>a[0].startsWith("📘")-b[0].startsWith("📘")||a[0].localeCompare(b[0],"fr")).forEach(([th,arr])=>{const c=el(`<details class="card" ${g.size<4||phQ?"open":""}><summary><b>${esc(th)}</b> <span class="small muted">· ${arr.length} phrases</span></summary></details>`);
       arr.slice(0,300).forEach(s=>c.append(el(`<div class="exline"><div><b>${esc(s.en)}</b><small>${esc(s.fr)} <span class="tag ${esc(s.lvl)}">${esc(s.lvl)}</span></small>${mBox(sKey(s),true)}</div>${pb(s.en)}</div>`)));V.append(c);});return;}
   if(pool.length<2){V.append(el(`<p class="notice">Pas assez de phrases ici.</p>`));return;}
   const area=el(`<div class="stack"></div>`);V.append(area);
@@ -24055,14 +24079,20 @@ GENS.push({id:"c2bank",cat:"grammaire",name:"Défis C2 : nuances, collocations, 
 R.capsules=function(){
   V.append(head("Cours",`Capsules <em>animées</em>`,"Des petites scènes animées et commentées pour comprendre les notions difficiles en 2 minutes : une voix naturelle, des sous-titres, puis un mini-quiz."));
   V.append(subtabs([["cours","📚 Leçons"],["capsules","🎬 Capsules et vidéos"]],"capsules",k=>location.hash=k));
+  V.append(el(`<p class="small muted" style="margin-bottom:-12px">Niveau</p>`));
+  V.append(subtabs([["Tous","Tous niveaux"]].concat(LEVELS.map(l=>[l,l])),capLvl,k=>{capLvl=k;const y=window.scrollY;route();window.scrollTo(0,y);}));
+  const okL=l=>capLvl==="Tous"||lvlIn(l,capLvl);
+  const caps=CAPSULES.filter(c=>okL(c.lvl));
+  V.append(el(`<h2>🎬 Capsules animées <span class="small muted" style="font-family:var(--body)">· ${caps.length}</span></h2>`));
+  if(!caps.length)V.append(el(`<p class="notice">Pas encore de capsule au niveau ${esc(capLvl)}.</p>`));
   const g=el(`<div class="grid"></div>`);
-  CAPSULES.forEach(c=>{const d=(S.caps||{})[c.id];g.append(el(`<button class="topic capcard" type="button" data-go="capsule-${c.id}"><div class="row" style="justify-content:space-between"><span class="emo big">${c.emo}</span><span class="tag ${c.lvl}">${c.lvl}</span></div><b class="tt">${esc(c.title)}</b><small>${c.scenes.length} scènes · quiz de ${c.quiz.length} questions${d!=null?` · ✓ ${d}/${c.quiz.length}`:""}</small></button>`));});
+  caps.forEach(c=>{const d=(S.caps||{})[c.id];g.append(el(`<button class="topic capcard" type="button" data-go="capsule-${c.id}"><div class="row" style="justify-content:space-between"><span class="emo big">${c.emo}</span><span class="tag ${c.lvl}">${c.lvl}</span></div><b class="tt">${esc(c.title)}</b><small>${c.scenes.length} scènes · quiz de ${c.quiz.length} questions${d!=null?` · ✓ ${d}/${c.quiz.length}`:""}</small></button>`));});
   V.append(g);
   V.append(el(`<h2>📺 De vraies séries pour t'entraîner</h2>`));
   V.append(el(`<p class="small muted">Les liens ouvrent YouTube. Conseil : regarde d'abord avec les sous-titres en anglais (jamais en français), puis revois la même scène sans sous-titres et répète les phrases.</p>`));
-  const s=el(`<div class="grid"></div>`);VIDEO_SERIES.forEach(v=>s.append(el(`<a class="topic" href="${esc(v.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="row"><span class="tag">${esc(v.type)}</span><span class="tag B1">${esc(v.lvl)}</span></div><b class="tt">${esc(v.name)} ↗</b><small>${esc(v.why)}</small></a>`)));V.append(s);
+  const vs=VIDEO_SERIES.filter(v=>okL(v.lvl));if(!vs.length)V.append(el(`<p class="notice">Pas de série conseillée pour le niveau ${esc(capLvl)}.</p>`));const s=el(`<div class="grid"></div>`);vs.forEach(v=>s.append(el(`<a class="topic" href="${esc(v.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="row"><span class="tag">${esc(v.type)}</span><span class="tag ${esc(String(v.lvl).split(/[–-]/)[0])}">${esc(v.lvl)}</span></div><b class="tt">${esc(v.name)} ↗</b><small>${esc(v.why)}</small></a>`)));V.append(s);
   V.append(el(`<h2>🎯 Une vidéo par notion</h2>`));
-  const t=el(`<div class="card"></div>`);VIDEO_TOPICS.forEach(([fr,en])=>t.append(el(`<div class="exline"><div><b>${esc(fr)}</b><small>Explications en français ou en anglais</small></div><div class="row" style="gap:6px;flex-wrap:nowrap"><a class="btn line sm" href="${yt(fr+" anglais explication facile")}" target="_blank" rel="noopener">🇫🇷</a><a class="btn line sm" href="${yt("BBC Learning English "+en)}" target="_blank" rel="noopener">🇬🇧</a></div></div>`)));V.append(t);
+  const vt=VIDEO_TOPICS.map((x,i)=>[x[0],x[1],VT_LVL[i]||"A2"]).filter(x=>okL(x[2]));const t=el(`<div class="card"></div>`);if(!vt.length)t.append(el(`<p class="small muted">Pas de vidéo par notion pour ce niveau : regarde les capsules ci-dessus.</p>`));vt.forEach(([fr,en,lv])=>t.append(el(`<div class="exline"><div><b>${esc(fr)} <span class="tag ${lv}">${lv}</span></b><small>Explications en français ou en anglais</small></div><div class="row" style="gap:6px;flex-wrap:nowrap"><a class="btn line sm" href="${yt(fr+" anglais explication facile")}" target="_blank" rel="noopener">🇫🇷</a><a class="btn line sm" href="${yt("BBC Learning English "+en)}" target="_blank" rel="noopener">🇬🇧</a></div></div>`)));V.append(t);
 };
 R.capsule=function(id){
   const c=CAPSULES.find(x=>x.id===id);if(!c){location.hash="capsules";return;}
