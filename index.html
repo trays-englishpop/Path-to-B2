@@ -22416,6 +22416,7 @@ function listen(onText,onEnd,onFail){
 
 /* ================= text compare ================= */
 const NUM={"0":"zero","1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight","9":"nine","10":"ten","11":"eleven","12":"twelve","20":"twenty","100":"hundred"};
+function nfa(s){return norm(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/œ/g,"oe");}
 function norm(s){s=String(s||"").toLowerCase().replace(/[’‘`´]/g,"'");
   s=s.replace(/won't/g,"will not").replace(/can't/g,"cannot").replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ve\b/g," have").replace(/'ll\b/g," will").replace(/\bcan not\b/g,"cannot");
   s=s.replace(/okay/g,"ok").replace(/\([^)]*\)/g," ").replace(/[^\p{L}\p{N}'\s]/gu," ").replace(/\s+/g," ").trim();
@@ -22826,7 +22827,7 @@ R.verbes=function(){
   if(verbMode==="table"){
     const q=el(`<input class="inp" type="search" placeholder="Chercher un verbe (anglais ou français)" autocomplete="off">`);area.append(q);
     const wrap=el(`<div class="card scroll-x"><table class="vtable"><thead><tr><th>Base</th><th>Prétérit</th><th>Participe</th><th>Français</th><th></th></tr></thead><tbody></tbody></table></div>`);area.append(wrap);
-    const draw=()=>{const f=norm(q.value);wrap.querySelector("tbody").innerHTML=VERBS.filter(v=>!f||norm(v.join(" ")).includes(f)).map(v=>`<tr class="tap" data-say="${esc(v[0]+". "+v[1].replace(" / ",", ")+". "+v[2].replace(" / ",", ")+".")}"><td><b>${esc(v[0])}</b><span class="ipa-s">${esc(ipaOf(v[0]))}</span></td><td>${esc(v[1])}<span class="ipa-s">${esc(ipaOf(v[1]))}</span></td><td>${esc(v[2])}<span class="ipa-s">${esc(ipaOf(v[2]))}</span></td><td class="muted small">${esc(v[3])}</td><td>${mastered(v)?'<span class="tag done">✓</span>':""}</td></tr>`).join("");};
+    const draw=()=>{const f=nfa(q.value);wrap.querySelector("tbody").innerHTML=VERBS.filter(v=>!f||nfa(v.join(" ")).includes(f)).map(v=>`<tr class="tap" data-say="${esc(v[0]+". "+v[1].replace(" / ",", ")+". "+v[2].replace(" / ",", ")+".")}"><td><b>${esc(v[0])}</b><span class="ipa-s">${esc(ipaOf(v[0]))}</span></td><td>${esc(v[1])}<span class="ipa-s">${esc(ipaOf(v[1]))}</span></td><td>${esc(v[2])}<span class="ipa-s">${esc(ipaOf(v[2]))}</span></td><td class="muted small">${esc(v[3])}</td><td>${mastered(v)?'<span class="tag done">✓</span>':""}</td></tr>`).join("");};
     q.addEventListener("input",draw);draw();area.append(el(`<p class="small muted">Touche une ligne pour entendre les trois formes.</p>`));return;}
   area.append(el(`<p class="small muted">${VERBS.filter(mastered).length} / ${VERBS.length} verbes maîtrisés.</p>`));
   const weighted=VERBS.map((v,i)=>{const s=S.verbs[v[0]]||{ok:0,ko:0};return{v,w:((mastered(v)?1:4)+s.ko*2+(i<40?2:0))*Math.random()};}).sort((a,b)=>b.w-a.w).slice(0,10).map(x=>x.v);
@@ -23084,7 +23085,7 @@ R.conj=function(){
   const sr=el(`<div class="stack" style="gap:6px"><input class="inp" type="search" placeholder="Quel verbe ? (anglais ou français)" autocomplete="off" autocapitalize="off"><div class="row sugg"></div></div>`);V.append(sr);
   const inp=sr.querySelector("input"),sug=sr.querySelector(".sugg");
   inp.addEventListener("input",()=>{const q=norm(inp.value);sug.innerHTML="";if(q.length<2)return;
-    verbList().filter(v=>norm(v.k).startsWith(q)||norm(v.fr).includes(q)).slice(0,12).forEach(v=>{const b=el(`<button class="wchip" type="button">${esc(v.k)} <small class="muted">${esc(v.fr)}</small></button>`);b.addEventListener("click",()=>{conjVerb=v.en;route();});sug.append(b);});});
+    verbList().filter(v=>nfa(v.k).startsWith(nfa(q))||nfa(v.fr).includes(nfa(q))).slice(0,12).forEach(v=>{const b=el(`<button class="wchip" type="button">${esc(v.k)} <small class="muted">${esc(v.fr)}</small></button>`);b.addEventListener("click",()=>{conjVerb=v.en;route();});sug.append(b);});});
   const C=conjugate(conjVerb);if(!C){V.append(el(`<p class="notice">Ce verbe ne se conjugue pas (verbe modal comme can, must, should…).</p>`));return;}
   const f=C.f;const vfr=(verbList().find(v=>v.k===C.vp.v+(C.vp.rest?" "+C.vp.rest:""))||{}).fr||"";const R2=C.vp.rest?" "+C.vp.rest:"";
   const notes=[];if(f.irregular)notes.push("⚠️ verbe <b>irrégulier</b> : prétérit et participe à apprendre par cœur");
@@ -24307,7 +24308,7 @@ R.amis=function(){
     V.append(el(`<p class="small muted">${FAUX_AMIS.length} faux amis. Touche une carte pour l'écouter.</p>`));
     const sr=el(`<input class="inp" type="search" placeholder="Chercher un mot" autocomplete="off">`);V.append(sr);
     const g=el(`<div class="grid"></div>`);V.append(g);
-    const draw=()=>{g.innerHTML="";const q=norm(sr.value);FAUX_AMIS.filter(f=>!q||norm(f.join(" ")).includes(q)).forEach(f=>g.append(el(`<button class="card fa" type="button" data-say="${esc(f[4])}"><div class="fa-top"><b class="k-b fa-en">${esc(f[0])}</b><span class="fa-ne">≠</span><b class="k-r fa-fr">${esc(f[2])}</b></div>${pronBox(f[0],true)}<p class="small">✓ <b>${esc(f[0])}</b> = ${esc(f[1])}</p><p class="small">🇫🇷 « ${esc(f[2])} » se dit <b class="k-g">${esc(f[3])}</b></p><p class="small muted">« ${esc(f[4])} »</p></button>`)));};
+    const draw=()=>{g.innerHTML="";const q=nfa(sr.value);FAUX_AMIS.filter(f=>!q||nfa(f.join(" ")).includes(q)).forEach(f=>g.append(el(`<button class="card fa" type="button" data-say="${esc(f[4])}"><div class="fa-top"><b class="k-b fa-en">${esc(f[0])}</b><span class="fa-ne">≠</span><b class="k-r fa-fr">${esc(f[2])}</b></div>${pronBox(f[0],true)}<p class="small">✓ <b>${esc(f[0])}</b> = ${esc(f[1])}</p><p class="small">🇫🇷 « ${esc(f[2])} » se dit <b class="k-g">${esc(f[3])}</b></p><p class="small muted">« ${esc(f[4])} »</p></button>`)));};
     sr.addEventListener("input",draw);draw();
   }else if(amiTab==="vrais"){
     V.append(el(`<div class="dk prof in"><span class="av">🧑‍🏫</span><div class="bub">Les <b>vrais amis</b> s'écrivent (presque) pareil en français et en anglais <b>et veulent dire la même chose</b>. Environ 30 % du vocabulaire anglais vient du français (merci Guillaume le Conquérant, 1066 !). Touche un mot pour l'entendre en anglais.</div></div>`));
@@ -25898,16 +25899,18 @@ const _conjMod=R.conj;R.conj=function(a){_conjMod(a);const n=[...V.querySelector
 
 
 /* smart search: the typed word first, then words that start with it / contain it, then close spellings; French only if no English match */
-function smartFind(raw,pool,limit){const q=norm(raw).trim();if(q.length<2)return[];const kq=q.replace(/^(a|an|the|to)\s+/,"");const rx=new RegExp("(^|[^a-z])"+kq.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"));
+function smartFind(raw,pool,limit){const q=norm(raw).trim();if(q.length<2)return[];const kq=q.replace(/^(a|an|the|to)\s+/,"");const esc2=x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");const rx=new RegExp("(^|[^a-z])"+esc2(kq));
+  const fn=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").replace(/œ/g,"oe").replace(/\s+/g," ");
+  const fq=fn(raw).trim().replace(/^((le|la|les|un|une|des|du|de la|se)\s+|(l|s|d)'\s*)/,"");const frs=new RegExp("(^|[^a-z0-9])"+esc2(fq));const frw=new RegExp("(^|[^a-z0-9])"+esc2(fq)+"($|[^a-z0-9])");
+  const fsenses=fr=>fn(fr).replace(/\(.*?\)/g," ").split(/[,;\/]| ou /).map(x=>x.trim().replace(/^(une|un|les|le|la|des|du|de la|l'|se |s')\s*/,"").replace(/·\w+/g,"").trim()).filter(Boolean);
   const lev=(a,b)=>{if(Math.abs(a.length-b.length)>1)return 9;const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t;}}return d[b.length];};
-  const tiers=[[],[],[],[],[]];const seen=new Set();
-  pool.forEach(w=>{const k=WKEY(w.en);const id=k+"|"+w.fr;if(seen.has(id))return;let r=-1;
-    if(k===kq)r=0;else if(k.startsWith(kq))r=1;else if(rx.test(k))r=2;else if(kq.length>=4&&k.length>=4&&lev(k,kq)<=1)r=3;
+  /* tiers: 0 EN exact · 1 FR exact · 2 EN starts · 3 FR whole word · 4 FR word starts · 5 EN contains · 6 close spelling */
+  const tiers=[[],[],[],[],[],[],[]];const seen=new Set();
+  pool.forEach(w=>{const k=WKEY(w.en);const id=k+"|"+w.fr;if(seen.has(id))return;let r=-1;const nf=fn(w.fr).replace(/\(.*?\)/g," ");
+    if(k===kq)r=0;else if(fsenses(w.fr).includes(fq))r=1;else if(k.startsWith(kq))r=2;else if(frw.test(nf))r=3;else if(fq.length>=3&&frs.test(nf))r=4;else if(rx.test(k))r=5;else if(kq.length>=4&&k.length>=4&&lev(k,kq)<=1)r=6;
     if(r>=0){seen.add(id);tiers[r].push(w);}});
   tiers.forEach(t=>t.sort((a,b)=>WKEY(a.en).length-WKEY(b.en).length));
-  let res=tiers.flat();
-  if(!res.length){const frx=new RegExp("(^|[^a-zà-ÿ])"+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|[^a-zà-ÿ])");pool.forEach(w=>{if(frx.test(norm(w.fr)))res.push(w);});res.sort((a,b)=>a.en.length-b.en.length);}
-  return res.slice(0,limit||50);}
+  return tiers.flat().slice(0,limit||50);}
 /* dictionary: keep only synonyms/antonyms that have their own entry, and make links two-way */
 (function(){if(typeof DICO==="undefined")return;const K=new Set(ALLWORDS.map(w=>WKEY(w.en)));Object.keys(DICO).forEach(k=>{const d=DICO[k];d[0]=d[0].filter(x=>K.has(x)&&x!==k);d[1]=d[1].filter(x=>K.has(x)&&x!==k);});
   Object.keys(DICO).forEach(k=>{if(!K.has(k))return;[0,1].forEach(i=>DICO[k][i].forEach(x=>{const o=DICO[x]||(DICO[x]=[[],[]]);if(!o[i].includes(k))o[i].push(k);}));});})();
